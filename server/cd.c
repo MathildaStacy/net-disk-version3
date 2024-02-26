@@ -1,7 +1,8 @@
 #include "cd.h"
-#include "database_struct.h"
+
 #include "user_dir_stack.h"
 #include <string.h>
+#include <strings.h>
 
 
 int cd(dirStackType *dirStk, char *str)
@@ -13,15 +14,19 @@ int cd(dirStackType *dirStk, char *str)
 
     int pid = 0;
     getHead(dirStk, &pid);
-    File file_arr[1024];
-    int length = 0;
-    dbListFileByParentID(pid, file_arr , &length);
+    
+    
+    int file_id[1024];
+    int n = findFilesByPreId(pid, file_id);
 
-    for(int i = 0; i < length; i++)
+    for(int i = 0; i < n; i++)
     {
-        if(strcmp(file_arr[i].filename, str))
+        File file_s;
+        bzero(&file_s, sizeof(file_s));
+        getFileDataById(file_id[n], &file_s);
+        if(strcmp(str, file_s.filename) == 0)
         {
-            stkPush(dirStk, file_arr[i].fileId);
+            stkPush(dirStk, file_s.fileId);
             break;
         }
     }

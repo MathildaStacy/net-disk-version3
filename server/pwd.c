@@ -26,7 +26,8 @@ int pwd(dirStackType *dirStk, char *str) {
 
     for (int i = top - 1; i >= 0; i--) {
         File file;
-        if (dbFindFileByDirID(tempIds[i], &file) == 0) {
+        int ret = getFileDataById(tempIds[i], &file);
+        if(ret != -1) {
             strcat(str, "/");
             strcat(str, file.filename);
             stkPush(dirStk, tempIds[i]); // 还原栈结构

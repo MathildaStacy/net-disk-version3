@@ -2,7 +2,7 @@
 #define __PWD_H__
 
 #include "user_dir_stack.h"
-#include "database_struct.h"
+#include "sql.h"
 
 
 int pwd(dirStackType *dirStk, char *str);

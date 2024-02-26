@@ -33,11 +33,11 @@ int sqlConnect(MYSQL **conn);//建立mysql连接
 void addUser(char *name,char *salt,char *password);//注册成功，向数据库中插入新用户
 int findUserByName(char *name,char* salt, char* password);//通过用户名，查询盐值
 void addFile(int uid, char *name,File_info *pf);
-void getFileDataById(int fileId, File *file_s);//获取文件详细信息
+int getFileDataById(int fileId, File *file_s);//获取文件详细信息
 char* getFilename(int fileId);
 int findFilesByPreId(int preId, int *fileIds);
 void dbFindFileBySha1(const char* sha1, File* file);
-int dbFindFileByDirId(int directoryId, File *file);
+//int dbFindFileByDirId(int directoryId, File *file);
 
 void get_salt(char *str);
 int math_user(MYSQL *conn,char *name,char *password,char *token);

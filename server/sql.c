@@ -206,7 +206,7 @@ int findFilesByPreId( int preId, int fileIds[100]) {
     return numFiles;
 }
 
-void getFileDataById(int fileId, File *file_s) {
+int getFileDataById(int fileId, File *file_s) {
     MYSQL *conn;//连接测试
     sqlConnect(&conn);
 
@@ -220,21 +220,21 @@ void getFileDataById(int fileId, File *file_s) {
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
         mysql_close(conn);
-        return;
+        return -1;
     }
 
     result = mysql_store_result(conn);
     if (result == NULL) {
         fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
         mysql_close(conn);
-        return;
+        return -1;
     }
 
     if (mysql_num_rows(result) == 0) {
         fprintf(stderr, "No rows found for fileId %d\n", fileId);
         mysql_free_result(result);
         mysql_close(conn);
-        return;
+        return -1;
     }
 
     row = mysql_fetch_row(result);
@@ -242,7 +242,7 @@ void getFileDataById(int fileId, File *file_s) {
         fprintf(stderr, "mysql_fetch_row() failed\n");
         mysql_free_result(result);
         mysql_close(conn);
-        return;
+        return -1;
     }
     
     strcpy(file_s->filename, row[0]);
@@ -256,6 +256,8 @@ void getFileDataById(int fileId, File *file_s) {
 
     mysql_free_result(result);
     mysql_close(conn);
+
+    return 0;
 }    
 
 void dbFindFileBySha1(const char *sha1, File *file_s) {
