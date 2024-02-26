@@ -30,13 +30,13 @@ int tomb; // 墓碑值
 } File;
 
 int sqlConnect(MYSQL **conn);//建立mysql连接
-void addUser(MYSQL *conn,char *name,char *salt,char *password);//注册成功，向数据库中插入新用户
-int findUserByName(MYSQL *conn,char *name,char* salt, char* password);//通过用户名，查询盐值
+void addUser(char *name,char *salt,char *password);//注册成功，向数据库中插入新用户
+int findUserByName(char *name,char* salt, char* password);//通过用户名，查询盐值
 void addFile(int uid, char *name,File_info *pf);
-void getFileDataById(MYSQL *conn,int fileId, File *file_s);//获取文件详细信息
-char* getFilename(MYSQL *conn, int fileId);
-int findFilesByPreId(MYSQL *conn, int preId, int *fileIds);
-void dbFindFileBySha1(MYSQL *conn,const char* sha1, File* file);
+void getFileDataById(int fileId, File *file_s);//获取文件详细信息
+char* getFilename(int fileId);
+int findFilesByPreId(int preId, int *fileIds);
+void dbFindFileBySha1(const char* sha1, File* file);
 int dbFindFileByDirId(int directoryId, File *file);
 
 void get_salt(char *str);
@@ -48,12 +48,12 @@ int find_pre_code(MYSQL *conn,char*path,int pcode);
 int find_later_code(MYSQL *conn,int cur_code,char *filename,char *name);
 int find_later_file(MYSQL *conn,int cur_code,char *filename,char *name);
 //int cd_func(MYSQL *conn,Train_t *ptrain,QUR_msg *pqq_msg,char *name,int *pcode);
-int deleteFile(MYSQL *conn,int uid,int fileid);
+int deleteFile(int uid,int fileid);
 //int find_file_info(MYSQL *conn,File_info*,char*name,int code);
 //int math_uoload(MYSQL *conn,File_info *pfile_info,char*name,int code);
 //void add_file(int code,char *name,File_info *pf);
-void loginLog(MYSQL *conn,const char *action,const char *name,const char *ip,const char *result);//登录&注册
-void operationLog(MYSQL *conn,const char *action,const char *name,const char *ip,const char *result);
+void loginLog(const char *action,const char *name,const char *ip,const char *result);//登录&注册
+void operationLog(const char *action,const char *name,const char *ip,const char *result);
 //int get_mqbuf(MYSQL *conn,MQ_buf *pf);
 
 

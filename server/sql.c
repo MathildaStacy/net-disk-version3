@@ -25,8 +25,10 @@ int sqlConnect(MYSQL **conn)
     return 0;
 }
 
-void addUser(MYSQL *conn,char *name,char *salt,char *password)
+void addUser(char *name,char *salt,char *password)
 {
+    MYSQL *conn;//连接数据库
+    sqlConnect(&conn);
     char query[200]="insert into users (username,salt,encrypted_password)values(";
     sprintf(query,"%s'%s','%s','%s')",query,name,salt,password);
     //printf("query= %s\n",query);
@@ -38,10 +40,14 @@ void addUser(MYSQL *conn,char *name,char *salt,char *password)
     }else{
         printf("insert success\n");
     }
+
+    mysql_close(conn);
 }
 
-int findUserByName(MYSQL *conn,char *name,char * salt, char *password)//待完成
+int findUserByName(char *name,char * salt, char *password)//待完成
 {
+    MYSQL *conn;//连接数据库
+    sqlConnect(&conn);
     MYSQL_RES *res;
     MYSQL_ROW row;
     char query[300]="select salt,encrypted_password from users where username='";
@@ -74,6 +80,8 @@ int findUserByName(MYSQL *conn,char *name,char * salt, char *password)//待完�
             exit(0);
         }
         mysql_free_result(res);
+        mysql_close(conn);
+        
         return ret;
     }
 }
@@ -96,7 +104,10 @@ void addFile(int uid, char *name,File_info *pf)
     mysql_close(conn);
 }
 
-char* getFilename(MYSQL *conn, int fileId) {
+char* getFilename(int fileId) {
+    MYSQL *conn;//连接测试
+    sqlConnect(&conn);
+
     MYSQL_RES *result;
     MYSQL_ROW row;
 
@@ -141,16 +152,17 @@ char* getFilename(MYSQL *conn, int fileId) {
 
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
-
+    mysql_close(conn);
     // 返回文件名
     return filename;
 }
 
-int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
+int findFilesByPreId( int preId, int fileIds[100]) {
+    MYSQL *conn;//连接测试
+    sqlConnect(&conn);
+
     MYSQL_RES *result;
     MYSQL_ROW row;
-
-
     // 构造 SQL 查询语句
     char query[1000];
     snprintf(query, sizeof(query), "SELECT fileId FROM files WHERE preId = %d", preId);
@@ -189,11 +201,15 @@ int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
     }
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
+    mysql_close(conn);
 
     return numFiles;
 }
 
-void getFileDataById(MYSQL *conn,int fileId, File *file_s) {
+void getFileDataById(int fileId, File *file_s) {
+    MYSQL *conn;//连接测试
+    sqlConnect(&conn);
+
     MYSQL_RES *result;
     MYSQL_ROW row;
 
@@ -238,11 +254,14 @@ void getFileDataById(MYSQL *conn,int fileId, File *file_s) {
     file_s->tomb = atoi(row[6]);
     printf("filename:%s\n",file_s->filename);
 
-
     mysql_free_result(result);
+    mysql_close(conn);
 }    
 
-void dbFindFileBySha1(MYSQL *conn,const char *sha1, File *file_s) {
+void dbFindFileBySha1(const char *sha1, File *file_s) {
+    MYSQL *conn;//连接测试
+    sqlConnect(&conn);
+
     MYSQL_RES *result;
     MYSQL_ROW row;
 
@@ -287,13 +306,16 @@ void dbFindFileBySha1(MYSQL *conn,const char *sha1, File *file_s) {
     strcpy(file_s->type, row[5]);
     file_s->tomb = atoi(row[6]);
 
-
     mysql_free_result(result);
+    mysql_close(conn);
 }    
 
 
-int deleteFile(MYSQL *conn,int uid, int fileid)
+int deleteFile(int uid, int fileid)
 {
+    MYSQL *conn;//连接测试
+    sqlConnect(&conn);
+
     MYSQL_RES *res;
     MYSQL_ROW row;
     char query[300]="select * from files where filename=";
@@ -332,11 +354,14 @@ int deleteFile(MYSQL *conn,int uid, int fileid)
     }else{
         printf("delete success,delete row=%ld\n",(long)mysql_affected_rows(conn));
     }
+    mysql_close(conn);
     return 0;
 }
 
-void loginLog(MYSQL *conn,const char *action,const char *name,const char *ip,const char *result)
+void loginLog(const char *action,const char *name,const char *ip,const char *result)
 {
+    MYSQL *conn;//连接测试
+    sqlConnect(&conn);
     char query[300]="insert into login(action,username,ip,result) values";
     sprintf(query,"%s('%s','%s','%s','%s')",query,action,name,ip,result);
     puts(query);
@@ -348,10 +373,14 @@ void loginLog(MYSQL *conn,const char *action,const char *name,const char *ip,con
     else{
         printf("insert log failed!\n");
     }
+    mysql_close(conn);
 }
 
-void operationLog(MYSQL *conn,const char *uname,const char *action,const char *time,const char *result)
+void operationLog(const char *uname,const char *action,const char *time,const char *result)
 {
+    MYSQL *conn;//连接测试
+    sqlConnect(&conn);
+
     char query[300]="insert into operationLog(username,action,time,result) values";
     sprintf(query,"%s('%s','%s','%s','%s')",query,uname,action,time,result);
     puts(query);
@@ -363,4 +392,5 @@ void operationLog(MYSQL *conn,const char *uname,const char *action,const char *t
     else{
         printf("insert failed!\n");
     }
+    mysql_close(conn);
 }
