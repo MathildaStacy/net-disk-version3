@@ -32,6 +32,7 @@ int findUserByName(MYSQL *conn,char *name,char* salt, char* password);//通过�
 void addFile(int uid, char *name,File_info *pf);
 void getFileData(MYSQL *conn,int fileId, File *file_s);//获取文件详细信息
 char* getFilename(MYSQL *conn, int fileId);
+int findFilesByPreId(MYSQL *conn, int preId, int *fileIds);
 
 void get_salt(char *str);
 int math_user(MYSQL *conn,char *name,char *password,char *token);
