@@ -193,13 +193,14 @@ int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
     return numFiles;
 }
 
-void getFileData(MYSQL *conn,int fileId, File *file_s) {
+void getFileDataById(MYSQL *conn,int fileId, File *file_s) {
     MYSQL_RES *result;
     MYSQL_ROW row;
 
     char query[1000];
     snprintf(query, sizeof(query), "SELECT filename, user, preId, path, type, sha1 FROM files WHERE fileId = %d", fileId);
 
+    printf("%s\n",query);
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
         mysql_close(conn);
@@ -227,17 +228,69 @@ void getFileData(MYSQL *conn,int fileId, File *file_s) {
         mysql_close(conn);
         return;
     }
-
+    
     strcpy(file_s->filename, row[0]);
     file_s->user = atoi(row[1]);
     file_s->pre_id = atoi(row[2]);
     strcpy(file_s->absPath, row[3]);
     strcpy(file_s->type, row[4]);
     strcpy(file_s->sha1, row[5]);
+    file_s->tomb = atoi(row[6]);
+    printf("filename:%s\n",file_s->filename);
 
 
     mysql_free_result(result);
 }    
+
+void dbFindFileBySha1(MYSQL *conn,const char *sha1, File *file_s) {
+    MYSQL_RES *result;
+    MYSQL_ROW row;
+
+    char query[1000];
+    snprintf(query, sizeof(query), "SELECT fileId, filename, user, preId, path, type FROM files WHERE sha1 ='%s'", sha1);
+
+    printf("%s\n",query);
+
+    if (mysql_query(conn, query)) {
+        fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+        mysql_close(conn);
+        return;
+    }
+
+    result = mysql_store_result(conn);
+    if (result == NULL) {
+        fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
+        mysql_close(conn);
+        return;
+    }
+
+    if (mysql_num_rows(result) == 0) {
+        fprintf(stderr, "No rows found for fileId %s\n", sha1);
+        mysql_free_result(result);
+        mysql_close(conn);
+        return;
+    }
+
+    row = mysql_fetch_row(result);
+    if (row == NULL) {
+        fprintf(stderr, "mysql_fetch_row() failed\n");
+        mysql_free_result(result);
+        mysql_close(conn);
+        return;
+    }
+    
+    file_s->fileId = atoi(row[0]);
+    strcpy(file_s->filename, row[1]);
+    file_s->user = atoi(row[2]);
+    file_s->pre_id = atoi(row[3]);
+    strcpy(file_s->absPath, row[4]);
+    strcpy(file_s->type, row[5]);
+    file_s->tomb = atoi(row[6]);
+
+
+    mysql_free_result(result);
+}    
+
 
 int deleteFile(MYSQL *conn,int uid, int fileid)
 {
