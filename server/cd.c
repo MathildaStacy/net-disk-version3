@@ -1,8 +1,13 @@
 #include "cd.h"
 
 #include "user_dir_stack.h"
+#include <stdio.h>
 #include <string.h>
 #include <strings.h>
+
+
+//测试
+#include "pwd.h"
 
 
 int cd(dirStackType *dirStk, char *str)
@@ -32,4 +37,26 @@ int cd(dirStackType *dirStk, char *str)
     }
 
     return 0;
+}
+
+
+int main()
+{
+    dirStackType *dirStk;
+    dirStackInit(&dirStk);
+
+    strcpy(dirStk->userName, "user1");
+
+    stkPush(dirStk, 1);
+    
+    cd(dirStk, "dir2");
+
+    char path[2048];
+    bzero(path, sizeof(path));
+
+    pwd(dirStk, path);
+
+    printf("%s\n", path);
+
+    
 }
