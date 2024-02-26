@@ -1,7 +1,7 @@
 #include "exePanServer.h"
 #include "hsqdef.h"
 //服务端执行网盘业务
-int exePanServer(int netfd, MYSQL* mysqlfd, char* usrname){
+int exePanServer(int netfd, MYSQL* conn, char* usrname){
     
     //获取当前系统目录
     char *sysPath = getcwd(NULL,0);
