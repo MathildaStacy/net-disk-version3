@@ -64,50 +64,50 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
 }
 
 
-int g_log_level = 0;
-
-
-int main()
-{
-    
-    dirStackType *dirStk;
-    dirStackInit(&dirStk);
-
-    strcpy(dirStk->userName, "user1");
-    
-
-
-    MYSQL *conn;
-    sqlConnect(&conn);
-    
-    
-    int x = 0;
-    getHead(dirStk, &x);
-    printf("83 head = %d\n", x);
-    
-    cd(conn, dirStk, "dir1");
-    
-    
-
-    char path[2048];
-    bzero(path, sizeof(path));
-    
-    pwd( conn,dirStk, path);
-    printf("1:%s\n", path);
-    
-    bzero(path, sizeof(path));
-    pwd( conn,dirStk, path);
-    printf("2:%s\n", path);
-
-    cd(conn, dirStk, "dir2");
-    x = 0;
-    getHead(dirStk, &x);
-    printf("88 head = %d\n", x);
-    
-    bzero(path, sizeof(path));
-    pwd( conn,dirStk, path);
-    printf("3:%s\n", path);
-
-    
-}
+//int g_log_level = 0;
+//
+//
+//int main()
+//{
+//    
+//    dirStackType *dirStk;
+//    dirStackInit(&dirStk);
+//
+//    strcpy(dirStk->userName, "user1");
+//    
+//
+//
+//    MYSQL *conn;
+//    sqlConnect(&conn);
+//    
+//    
+//    int x = 0;
+//    getHead(dirStk, &x);
+//    printf("83 head = %d\n", x);
+//    
+//    cd(conn, dirStk, "dir1");
+//    
+//    
+//
+//    char path[2048];
+//    bzero(path, sizeof(path));
+//    
+//    pwd( conn,dirStk, path);
+//    printf("1:%s\n", path);
+//    
+//    bzero(path, sizeof(path));
+//    pwd( conn,dirStk, path);
+//    printf("2:%s\n", path);
+//
+//    cd(conn, dirStk, "dir2");
+//    x = 0;
+//    getHead(dirStk, &x);
+//    printf("88 head = %d\n", x);
+//    
+//    bzero(path, sizeof(path));
+//    pwd( conn,dirStk, path);
+//    printf("3:%s\n", path);
+//
+//    
+//}
 

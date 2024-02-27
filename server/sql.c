@@ -103,7 +103,7 @@ void addFile(MYSQL *conn, File file_s) {
        printf("File inserted successfully\n");
           
     // 关闭数据库连接
-        .
+        
   }  
 
 char* getFilename(MYSQL *conn, int fileId) {
@@ -249,7 +249,7 @@ int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
     
     printf("sql.c: 245 ok\n");
     strcpy(file_s->filename, row[0]);
-    file_s->user = atoi(row[1]);
+    strcpy(file_s->user, row[1]);
     file_s->pre_id = atoi(row[2]);
     strcpy(file_s->absPath, row[3]);
     strcpy(file_s->type, row[4]);
@@ -304,7 +304,7 @@ int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
     
     file_s->fileId = atoi(row[0]);
     strcpy(file_s->filename, row[1]);
-    file_s->user = atoi(row[2]);
+    strcpy(file_s->user, row[2]);
     file_s->pre_id = atoi(row[3]);
     strcpy(file_s->absPath, row[4]);
     strcpy(file_s->type, row[5]);

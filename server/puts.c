@@ -1,5 +1,5 @@
 #include "puts.h"
-#include "func.h"
+#include "hsqdef.h"
 #include "train.h"
 #include "pwd.h"
 #include "sql.h"
