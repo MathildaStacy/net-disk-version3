@@ -1,6 +1,7 @@
 #include "exePanClient.h"
 #include "hsqdef.h"
 #include "analyOrder.h"
+#include "puts.h"
 int exePanClient(int sockfd, char*usrname){
 
     char bufPrintf[1024] = {0};//保存当前命令行提示符信息
@@ -44,6 +45,7 @@ int exePanClient(int sockfd, char*usrname){
             {
                 //接收服务端发回来的返回值，判断之后的操作
                 int ret = 0;
+                recv(sockfd, &ret, sizeof(int), 0);
                 if(ret == 0){
                     //改变当前命令提示符显示
                     changeCmdline(bufPrintf, &order);
@@ -53,13 +55,17 @@ int exePanClient(int sockfd, char*usrname){
 
         case PUTS:
             {
-                //    transFile(order.parameters[0], sockfd);
+                
+                int ret = commandPuts_C(order.parameters[0],sockfd);
+                if(ret == -1){
+                    printf("上传失败\n");
+                }
+
                 break;
             }
         case GETS:
             {
-
-                //   int ret = downloadFile(sockfd, order.parameters[0]);
+            
                 if(ret == -1){
                     printf("下载失败\n");
                 }
@@ -81,7 +87,7 @@ int exePanClient(int sockfd, char*usrname){
         case PWD:
             {
                 char vitualPath[1024] = {0};
-                recv(sockfd,vitualPath,1024,0);
+                recv(sockfd,vitualPath,1024,MSG_WAITALL);
                 printf("path = %s\n",vitualPath);
                 break;
             }

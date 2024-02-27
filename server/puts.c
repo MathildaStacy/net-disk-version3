@@ -173,28 +173,44 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
     int dbret = dbFindFileBySha1(conn,hashbuf,&isExist_file);
     if(dbret == 0)
     {
+        printf("file is exist\n");
         isExist=1;
     }
     else if (dbret == -1)
     {
-        isExist == 0;
+        isExist = 0;
     }
     else if(dbret == -2)
     {
         printf("dbFindFileBySha1 erro\n");
         return -1;
     }
+    //如果文件存在
+    if(isExist == 1)
+    {
+           msgtrans("1",sockfd);
+           File writefile;
+           strcpy(writefile.filename,filename);
+           char user[30];
+           strcpy(user,virtual_path->userName);
+           strcpy(writefile.user,user); 
+           char fullpath[1024];
+           sprintf(fullpath,"%s/%s",virtual_filepath,filename);
+           strcpy(writefile.absPath,fullpath);
+
+           strcpy(writefile.type,"f");
+           strcpy(writefile.sha1,hashbuf);
+           writefile.tomb=0;
+           addFile(conn,writefile);
+           return 0;
+    }
 
     //如果不存在
     if(isExist == 0)
     {
+        msgtrans("0",sockfd);
         //注册表内没有说明可能没有或是未传输完
        int opfd =open(hashbuf,O_RDWR);
-       if (flock(opfd, LOCK_EX) < 0) 
-       { // 对文件加排它锁
-           perror("flock");
-           exit(EXIT_FAILURE);
-       }
        //情况1：打开失败说明没有此文件
        if(opfd == -1)
        {
@@ -216,6 +232,11 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
        //情况2：打开成功说明之前有文件
        else
        {
+           if (flock(opfd, LOCK_EX) < 0) 
+           { // 对文件加排它锁
+               perror("flock");
+               exit(EXIT_FAILURE);
+           }
             struct stat file_stat;
             int rret = fstat(opfd,&file_stat);
             if(rret == -1)
@@ -233,6 +254,11 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
            }
        //发送完offset后开始接收
            getfile(sockfd,opfd,offset);
+           if (flock(opfd, LOCK_UN) < 0) 
+           { // 解锁文件
+               perror("flock");
+               exit(EXIT_FAILURE);
+           } 
        }
        //最后一次对比hash是否正确
        char jugehash[41];
@@ -244,16 +270,21 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
            msgtrans(checkbuf,sockfd);
            printf("get ok\n");
            //写入文件目录表
-           File *writefile;
-           strcpy(writefile->filename,filename);
+           File writefile;
+           strcpy(writefile.filename,filename);
            char user[30];
            strcpy(user,virtual_path->userName);
-           strcpy(writefile->user,user); 
-           strcpy(writefile->absPath,virtual_filepath);
-           strcpy(writefile->type,"f");
-           strcpy(writefile->sha1,hashbuf);
-           writefile->tomb=0;
-           addFile(conn,*writefile);
+           strcpy(writefile.user,user); 
+
+          
+           char fullpath[1024];
+           sprintf(fullpath,"%s/%s",virtual_filepath,filename);
+           strcpy(writefile.absPath,fullpath);
+           
+           strcpy(writefile.type,"f");
+           strcpy(writefile.sha1,hashbuf);
+           writefile.tomb=0;
+           addFile(conn,writefile);
 
        }
        else
@@ -267,11 +298,6 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
            } 
 
        }
-       if (flock(opfd, LOCK_UN) < 0) 
-       { // 解锁文件
-           perror("flock");
-           exit(EXIT_FAILURE);
-       } 
        close(opfd);
 
     }
