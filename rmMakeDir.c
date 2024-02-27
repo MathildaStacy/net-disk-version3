@@ -4,10 +4,12 @@ int rm(dirStackType *stack,char *fileName,MYSQL *con){
     char name[128]={0};
         strcat(name,stack->userName);
         char dir[128]={0};
-        pwd(stack,dir );     
+        pwd(stack,dir);     
     MYSQL_RES *res = NULL;
     MYSQL_ROW row;
     char com[128]={0};
+    char fullPath[128]={0};
+    snprintf(fullPath,128,"dir/%s",fileName);
     int preid;
      snprintf(com,128,"SELECT fileId,type FROM files1 WHERE path='%s' and user ='%s'",dir,name);
       mysql_query(con,com);
@@ -20,10 +22,10 @@ int rm(dirStackType *stack,char *fileName,MYSQL *con){
      }mysql_free_result(res);
       bzero(com,128);
       if(strcmp(type,"dir")!=0){
-         snprintf(com,sizeof(com),"UPDATE files1 set tomb = '1' where ath='/path/to/file1.txt' and user ='user1'");
+         snprintf(com,sizeof(com),"UPDATE files1 set tomb = '1' where path='%s' and user ='user1'",fullPath);
       }
       else {
-          snprintf(com,sizeof(com),"UPDATE files1 set tomb = '1' where preId ='%d'",preId);
+          snprintf(com,sizeof(com),"UPDATE files1 set tomb = '1' where preId ='%d' where user ='user1'",preId);
       }
      int ret =  mysql_query(con,com);
      if(ret == 0 )
