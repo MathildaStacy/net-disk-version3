@@ -20,7 +20,7 @@ typedef struct {
 typedef struct {
 int fileId; // 文件id
 char filename[128]; // 文件名
-int user; // 文件所属用户id
+char user[30]; // 文件所属用户id
 int pre_id; // 上一级目录id
 // 从根目录开始的绝对路径：根据你的需要选择是否实现
 char absPath[200]; // 绝对路径（可选）
@@ -32,7 +32,7 @@ int tomb; // 墓碑值
 int sqlConnect(MYSQL **conn);//建立mysql连接
 void addUser(MYSQL *conn ,char *name,char *salt,char *password);//注册成功，向数据库中插入新用户
 int findUserByName(MYSQL *conn, char *name,char* salt, char* password);//通过用户名，查询盐值
-void addFile(MYSQL *conn, int uid, char *name,File_info *pf);
+void addFile(MYSQL *conn, File file_s);
 int getFileDataById(MYSQL *conn, int fileId, File *file_s);//获取文件详细信息
 char* getFilename(MYSQL *conn, int fileId);
 int findFilesByPreId(MYSQL *conn, int preId, int *fileIds);     //更新
