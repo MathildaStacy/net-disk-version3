@@ -55,7 +55,7 @@ int makeDir(dirStackType *stack,char *dirName,MYSQL *con)
             char pathSql[128]={0};
             snprintf(pathSql,128,"%s/%s",dir,dirName);
            bzero(com,128);
-snprintf(com,sizeof(com),"INSERT INTO files1  (filename, user, preId, path, type) values ('%s','%s',%d,'%s','dir')",dirName,usrname,preId,pathSql);
+snprintf(com,sizeof(com),"INSERT INTO files1  (filename, user, preId, path, type,sha1) values ('%s','%s',%d,'%s','dir','0')",dirName,usrname,preId,pathSql);
 mysql_free_result(res);       
   ret =  mysql_query(con,com);
            if(ret== 0)
