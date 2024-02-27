@@ -90,7 +90,7 @@ void addFile(MYSQL *conn, File file_s) {
     
         // 构造 SQL 插入语句
        char query[1000];
-       snprintf(query, sizeof(query), "INSERT INTO files (filename, user, preId, path, type, sha1, tomb) VALUES ('%s', '%d', %d, '%s', '%s', '%s', %d)",
+       snprintf(query, sizeof(query), "INSERT INTO files (filename, user, preId, path, type, sha1, tomb) VALUES ('%s', '%s', %d, '%s', '%s', '%s', %d)",
                  file_s.filename, file_s.user, file_s.pre_id, file_s.absPath, file_s.type, file_s.sha1, file_s.tomb);
     
      // 执行插入操作
@@ -103,7 +103,7 @@ void addFile(MYSQL *conn, File file_s) {
        printf("File inserted successfully\n");
           
     // 关闭数据库连接
-        
+        .
   }  
 
 char* getFilename(MYSQL *conn, int fileId) {
@@ -320,7 +320,6 @@ int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
 int deleteFile(MYSQL *conn, int uid, int fileid)
 {
     
-
     MYSQL_RES *res;
     MYSQL_ROW row;
     char query[300]="select * from files where filename=";
