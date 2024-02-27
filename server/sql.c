@@ -25,10 +25,9 @@ int sqlConnect(MYSQL **conn)
     return 0;
 }
 
-void addUser(char *name,char *salt,char *password)
+void addUser(MYSQL *conn, char *name,char *salt,char *password)
 {
-    MYSQL *conn;//连接数据库
-    sqlConnect(&conn);
+    
     char query[200]="insert into users (username,salt,encrypted_password)values(";
     sprintf(query,"%s'%s','%s','%s')",query,name,salt,password);
     //printf("query= %s\n",query);
@@ -44,10 +43,9 @@ void addUser(char *name,char *salt,char *password)
     mysql_close(conn);
 }
 
-int findUserByName(char *name,char * salt, char *password)//待完成
+int findUserByName(MYSQL *conn, char *name,char * salt, char *password)//待完成
 {
-    MYSQL *conn;//连接数据库
-    sqlConnect(&conn);
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
     char query[300]="select salt,encrypted_password from users where username='";
@@ -80,16 +78,15 @@ int findUserByName(char *name,char * salt, char *password)//待完成
             exit(0);
         }
         mysql_free_result(res);
-        mysql_close(conn);
+        
         
         return ret;
     }
 }
 
-void addFile(int uid, char *name,File_info *pf)
+void addFile(MYSQL *conn, int uid, char *name,File_info *pf)
 {
-    MYSQL *conn;
-    sqlConnect(&conn);
+    
     char query[300]="insert into files(filename,belongUserId,filetype,md5sum,filesize) values";
     sprintf(query,"%s('%s','%d','%s','%s',%d)",query,pf->filename,uid,
            pf->filetype,pf->md5sum,pf->filesize);
@@ -101,12 +98,11 @@ void addFile(int uid, char *name,File_info *pf)
     else{
         printf("failed!\n");
     }
-    mysql_close(conn);
+    
 }
 
-char* getFilename(int fileId) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+char* getFilename(MYSQL *conn, int fileId) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -152,14 +148,13 @@ char* getFilename(int fileId) {
 
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
-    mysql_close(conn);
+    
     // 返回文件名
     return filename;
 }
 
-int findFilesByPreId( int preId, int fileIds[100]) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -201,14 +196,13 @@ int findFilesByPreId( int preId, int fileIds[100]) {
     }
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
-    mysql_close(conn);
+    
 
     return numFiles;
 }
 
-int getFileDataById(int fileId, File *file_s) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -255,14 +249,13 @@ int getFileDataById(int fileId, File *file_s) {
     printf("filename:%s\n",file_s->filename);
 
     mysql_free_result(result);
-    mysql_close(conn);
+   
 
     return 0;
 }    
 
-void dbFindFileBySha1(const char *sha1, File *file_s) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -275,21 +268,21 @@ void dbFindFileBySha1(const char *sha1, File *file_s) {
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
         mysql_close(conn);
-        return;
+        return -2;
     }
 
     result = mysql_store_result(conn);
     if (result == NULL) {
         fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
         mysql_close(conn);
-        return;
+        return -2;
     }
 
     if (mysql_num_rows(result) == 0) {
         fprintf(stderr, "No rows found for fileId %s\n", sha1);
         mysql_free_result(result);
         mysql_close(conn);
-        return;
+        return -1; //如果没有找到就返回-1
     }
 
     row = mysql_fetch_row(result);
@@ -297,7 +290,7 @@ void dbFindFileBySha1(const char *sha1, File *file_s) {
         fprintf(stderr, "mysql_fetch_row() failed\n");
         mysql_free_result(result);
         mysql_close(conn);
-        return;
+        return -2;
     }
     
     file_s->fileId = atoi(row[0]);
@@ -309,7 +302,9 @@ void dbFindFileBySha1(const char *sha1, File *file_s) {
     file_s->tomb = atoi(row[6]);
 
     mysql_free_result(result);
-    mysql_close(conn);
+    
+
+    return 0;
 }    
 
 

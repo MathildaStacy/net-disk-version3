@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int pwd(dirStackType *dirStk, char *str) {
+int pwd(MYSQL *conn, dirStackType *dirStk, char *str) {
     if (isEmpty(dirStk)) {
         sprintf(str, "/%s", dirStk->userName);  // 如果目录栈为空，只返回根路径
         return 0;
@@ -26,14 +26,13 @@ int pwd(dirStackType *dirStk, char *str) {
 
     for (int i = top - 1; i >= 0; i--) {
         File file;
-        int ret = getFileDataById(tempIds[i], &file);
+        int ret = getFileDataById(conn, tempIds[i], &file);
         if(ret != -1) {
             strcat(str, "/");
             strcat(str, file.filename);
             stkPush(dirStk, tempIds[i]); // 还原栈结构
         } else {
-            // 处理通过ID找不到文件的异常情况
-            // 具体的错误处理根据需求定义
+            return -1;
         }
     }
 

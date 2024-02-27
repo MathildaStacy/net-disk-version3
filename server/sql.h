@@ -30,13 +30,13 @@ int tomb; // 墓碑值
 } File;
 
 int sqlConnect(MYSQL **conn);//建立mysql连接
-void addUser(char *name,char *salt,char *password);//注册成功，向数据库中插入新用户
-int findUserByName(char *name,char* salt, char* password);//通过用户名，查询盐值
-void addFile(int uid, char *name,File_info *pf);
-int getFileDataById(int fileId, File *file_s);//获取文件详细信息
-char* getFilename(int fileId);
-int findFilesByPreId(int preId, int *fileIds);
-void dbFindFileBySha1(const char* sha1, File* file);
+void addUser(MYSQL *conn ,char *name,char *salt,char *password);//注册成功，向数据库中插入新用户
+int findUserByName(MYSQL *conn, char *name,char* salt, char* password);//通过用户名，查询盐值
+void addFile(MYSQL *conn, int uid, char *name,File_info *pf);
+int getFileDataById(MYSQL *conn, int fileId, File *file_s);//获取文件详细信息
+char* getFilename(MYSQL *conn, int fileId);
+int findFilesByPreId(MYSQL *conn, int preId, int *fileIds);     //更新
+int dbFindFileBySha1(MYSQL *conn, const char* sha1, File* file); //更新
 //int dbFindFileByDirId(int directoryId, File *file);
 
 void get_salt(char *str);
