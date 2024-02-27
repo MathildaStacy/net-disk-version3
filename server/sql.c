@@ -86,22 +86,25 @@ int findUserByName(MYSQL *conn, char *name,char * salt, char *password)//待完�
     return ret;
 }
 
-void addFile(MYSQL *conn, int uid, char *name,File_info *pf)
-{
+void addFile(MYSQL *conn, File file_s) {
     
-    char query[300]="insert into files(filename,belongUserId,filetype,md5sum,filesize) values";
-    sprintf(query,"%s('%s','%d','%s','%s',%d)",query,pf->filename,uid,
-           pf->filetype,pf->md5sum,pf->filesize);
-//    puts(query);
+        // 构造 SQL 插入语句
+       char query[1000];
+       snprintf(query, sizeof(query), "INSERT INTO files (filename, user, preId, path, type, sha1, tomb) VALUES ('%s', '%d', %d, '%s', '%s', '%s', %d)",
+                 file_s.filename, file_s.user, file_s.pre_id, file_s.absPath, file_s.type, file_s.sha1, file_s.tomb);
     
-    int t = mysql_query(conn,query);
-    if(t == 0){
-        printf("insert success\n");}
-    else{
-        printf("failed!\n");
-    }
-    
-}
+     // 执行插入操作
+       if (mysql_query(conn, query)) {
+          fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+           //mysql_close(conn);                                                                                                                                   
+          return;
+       }   
+          
+       printf("File inserted successfully\n");
+          
+    // 关闭数据库连接
+        
+  }  
 
 char* getFilename(MYSQL *conn, int fileId) {
     
