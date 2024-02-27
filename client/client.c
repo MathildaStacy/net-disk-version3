@@ -1,6 +1,6 @@
-#include "hsqdef.h"
 #include "analyOrder.h"
 #include "exePanClient.h"
+#include "loginAndRegister.h"
 int main(int argc, char *argv[])
 {
     // 192.168.72.128:1234 是服务端的ip端口
@@ -15,12 +15,19 @@ int main(int argc, char *argv[])
     ERROR_CHECK(ret,-1,"connect");
     
     //执行登录业务
-    char usrname[1024] = "huangsir"; 
-    
+    printf("--------NetDisk--------\n");
+    char username[40] = {0}; 
+    //注册
+    userRegister(username,sockfd);
+    //登陆
+    userLogin(username, sockfd);
+    printf("Login successfully, username = %s\n",username);
+
+
 
     
     //执行网盘业务
-    exePanClient(sockfd, usrname);
+    exePanClient(sockfd, username);
     close(sockfd);
     return 0;
 }

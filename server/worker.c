@@ -2,6 +2,7 @@
 #include "taskQueue.h"
 #include "threadPool.h"
 #include "exePanServer.h"
+#include "loginAndRegister.h"
 int tidArrInit(tidArr_t * ptidArr, int workerNum){
     // 申请内存 存储每个子线程的tid
     ptidArr->arr = (pthread_t *)calloc(workerNum,sizeof(pthread_t));
@@ -41,7 +42,7 @@ void * threadFunc(void *arg){
         char *host = "localhost";
         char *user = "root";
         char *password = "123456";
-        char *database = "54test";
+        char *database = "netdisk";
         MYSQL *ret = mysql_real_connect(conn,host,user,password,database,0,NULL,0);
         pthread_mutex_unlock(&pthreadPool->mutexMysql);
         if(ret == NULL){
@@ -50,6 +51,7 @@ void * threadFunc(void *arg){
             close(netfd);
             continue;
         }
+        printf("数据库连接成功\n");
         //char *sql = "update S set id = 5201314 where name = 'lihua'";
         //if(mysqlfd == NULL){
         //}
@@ -60,12 +62,17 @@ void * threadFunc(void *arg){
         //printf("connect over mysql\n");
 
         //登陆操作
-        char *usrname = "huangshuiqing";
-                
+        char username[40] = {0};
+        //注册
+        SignIn_Deal(netfd,conn);
+        //登陆
+        LogIn_Deal(netfd, username, conn);
+        //
+        printf("登陆成功，username = %s\n",username);
 
 
         //执行网盘业务
-        exePanServer(netfd, conn, usrname);
+        exePanServer(netfd, conn, username);
         printf("I am worker, netfd = %d, over\n",netfd);
         //子线程结束业务，用户退出，断开和用户的连接，然后继续等待下一个用户的连接
         mysql_close(conn);

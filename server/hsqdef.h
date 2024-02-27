@@ -27,6 +27,8 @@
 #include <sys/types.h>
 #include <sys/sendfile.h>
 #include<mysql/mysql.h>
+#include <crypt.h>
+#include <shadow.h>
 #define ARGS_CHECK(argc,num) {if(argc!=num){fprintf(stderr,"args error!\n");return -1;}}
 #define ERROR_CHECK(ret,num,msg) {if(ret == num){perror(msg); return -1;}}
 #define ERROR_PCHECK(ret,num) {if(ret != num){fprintf(stderr,"%s: %s",strerror(ret));return -1;}}
