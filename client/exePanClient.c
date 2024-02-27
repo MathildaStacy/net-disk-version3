@@ -44,6 +44,7 @@ int exePanClient(int sockfd, char*usrname){
             {
                 //接收服务端发回来的返回值，判断之后的操作
                 int ret = 0;
+                recv(sockfd, &ret, sizeof(int), 0);
                 if(ret == 0){
                     //改变当前命令提示符显示
                     changeCmdline(bufPrintf, &order);
@@ -81,7 +82,7 @@ int exePanClient(int sockfd, char*usrname){
         case PWD:
             {
                 char vitualPath[1024] = {0};
-                recv(sockfd,vitualPath,1024,0);
+                recv(sockfd,vitualPath,1024,MSG_WAITALL);
                 printf("path = %s\n",vitualPath);
                 break;
             }

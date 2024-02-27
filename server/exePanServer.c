@@ -1,9 +1,14 @@
 #include "exePanServer.h"
 #include "hsqdef.h"
-
+#include "user_dir_stack.h"
+#include "cd.h"
+#include "pwd.h"
 //服务端执行网盘业务
 int exePanServer(int netfd, MYSQL* conn, char* usrname){
     
+    dirStackType * dirstack;
+    dirStackInit(& dirstack);
+    strcpy(dirstack->userName, usrname);  
     //获取当前系统目录
     char *sysPath = getcwd(NULL,0);
     printf("sysPath: %s\n",sysPath);
@@ -28,6 +33,8 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
             }
         case CD:
             {
+                int ret = cd(conn,dirstack,order.parameters[0]);
+                send(netfd, &ret, sizeof(int),0);
                 break;
             }
         case PUTS:
@@ -45,6 +52,9 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
             }
         case PWD:
             {
+                char buf[1024] = {0};
+                pwd(conn, dirstack, buf);
+                send(netfd, buf, 1024, 0);
                 break;
             }
 

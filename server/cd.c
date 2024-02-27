@@ -30,18 +30,18 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
     }
     
     
-    
+    printf("cd 33 : pos1\n");
     int file_id[1024];
     int n = findFilesByPreId(conn, pid, file_id);
 
     
-   
+    printf("cd 38 : pos2\n");
 
     for(int i = 0; i < n; i++)
     {
         
 
-
+        printf("cd 44 : pos3\n");
         File file_s;
         bzero(&file_s, sizeof(file_s));
         int ret = getFileDataById(conn, file_id[i], &file_s);

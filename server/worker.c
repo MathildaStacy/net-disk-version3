@@ -62,11 +62,11 @@ void * threadFunc(void *arg){
         //printf("connect over mysql\n");
 
         //登陆操作
-        char username[40] = {0};
+        char username[40] = "user1";
         //注册
-        SignIn_Deal(netfd,conn);
+        //SignIn_Deal(netfd,conn);
         //登陆
-        LogIn_Deal(netfd, username, conn);
+        //LogIn_Deal(netfd, username, conn);
         //
         printf("登陆成功，username = %s\n",username);
 

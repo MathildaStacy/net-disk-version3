@@ -160,49 +160,55 @@ char* getFilename(MYSQL *conn, int fileId) {
 
 int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
     
-
+    
     MYSQL_RES *result;
     MYSQL_ROW row;
     // 构造 SQL 查询语句
     char query[1000];
     snprintf(query, sizeof(query), "SELECT fileId FROM files WHERE preId = %d", preId);
-
+    printf("sql.c 169: pos1\n");
+    printf("sql.c :|%s|\n", query);
     // 执行查询
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
+       // mysql_close(conn);
         return 0;
     }
-
+    printf("sql.c 176: pos1\n");
     // 获取查询结果
     result = mysql_store_result(conn);
     if (result == NULL) {
         fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
+       // mysql_close(conn);
         return 0;
     }
-
+    printf("sql.c 184: pos1\n");
     // 获取结果行数
     int numRows = mysql_num_rows(result);
     int numFiles = numRows;
-
+    
+    printf("sql.c 189: pos1\n");
     // 分配内存以存储 fileIds
     if (fileIds == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
         mysql_free_result(result);
-        mysql_close(conn);
+        //mysql_close(conn);
         return 0;
     }
 
+
+    printf("sql.c 199: pos1\n");
     // 读取结果并将 fileId 存储在 fileIds 数组中
     int i = 0;
     while ((row = mysql_fetch_row(result)) != NULL) {
         fileIds[i++] = atoi(row[0]);
     }
+
+    printf("sql.c 206: pos1\n");
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
     
-
+    printf("sql.c 210: pos1\n");
     return numFiles;
 }
 
@@ -377,7 +383,7 @@ void loginLog(const char *action,const char *name,const char *ip,const char *res
     else{
         printf("insert log failed!\n");
     }
-    mysql_close(conn);
+   // mysql_close(conn);
 }
 
 void operationLog(const char *uname,const char *action,const char *time,const char *result)
@@ -396,5 +402,5 @@ void operationLog(const char *uname,const char *action,const char *time,const ch
     else{
         printf("insert failed!\n");
     }
-    mysql_close(conn);
+    //mysql_close(conn);
 }
