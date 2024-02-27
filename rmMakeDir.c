@@ -67,7 +67,7 @@ snprintf(com,sizeof(com),"INSERT INTO files1  (filename, user, preId, path, type
            }
            else 
            {
-               printf("fail\n");
+               return -1;
            }
             mysql_free_result(res);
     mysql_close(con);
