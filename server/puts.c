@@ -6,6 +6,7 @@
 //#include "logger.h"
 #include <openssl/sha.h>
 #include <sys/file.h>
+#include <mysql/mysql.h>
 #include "file_content_to_sha1.h"
 #define BUFSIZE 4096
 
@@ -148,19 +149,20 @@
     printf("get over\n");
     return 0;
 }
-int commandPuts_S(dirStackType * virtual_path,int sockfd)
+int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
 {
     //接收哈希
     char hashbuf[41];
     msgrecv(hashbuf,sockfd);
-
+    char filename[128];
+    msgrecv(filename,sockfd);
     //查询有无此文件,存在返回1，不在返回0
     int isExist = 0;
     off_t offset =0;
     char offsetbuf[1024];
     //用于得到父目录
     char virtual_filepath[1024]; 
-    int pwdret = pwd(virtual_path,virtual_filepath);
+    int pwdret = pwd(conn,virtual_path,virtual_filepath);
     if(pwdret==-1)
     {
         printf("pwd wrong!\n");
@@ -168,7 +170,7 @@ int commandPuts_S(dirStackType * virtual_path,int sockfd)
     }
     File isExist_file;
     //使用dbret判断是否存在，-1不存在，0存在，-2异常
-    int dbret = dbFindFileBySha1(hashbuf,&isExist_file);
+    int dbret = dbFindFileBySha1(conn,hashbuf,&isExist_file);
     if(dbret == 0)
     {
         isExist=1;
@@ -242,6 +244,17 @@ int commandPuts_S(dirStackType * virtual_path,int sockfd)
            msgtrans(checkbuf,sockfd);
            printf("get ok\n");
            //写入文件目录表
+           File *writefile;
+           strcpy(writefile->filename,filename);
+           char user[30];
+           strcpy(user,virtual_path->userName);
+           strcpy(writefile->user,user); 
+           strcpy(writefile->absPath,virtual_filepath);
+           strcpy(writefile->type,"f");
+           strcpy(writefile->sha1,hashbuf);
+           writefile->tomb=0;
+           addFile(conn,*writefile);
+
        }
        else
        {
@@ -271,6 +284,7 @@ int commandPuts_C(char* filename,int sockfd)
     char hashbuf[41];
     sha1file(filename,hashbuf);
     msgtrans(hashbuf,sockfd);
+    msgtrans(filename,sockfd);
     
     //接收此时文件大小
     char offsetbuf[1024];
