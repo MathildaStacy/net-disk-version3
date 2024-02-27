@@ -59,7 +59,11 @@ snprintf(com,sizeof(com),"INSERT INTO files1  (filename, user, preId, path, type
 mysql_free_result(res);       
 int ret =  mysql_query(con,com);
            if(ret== 0)
+<<<<<<< HEAD
            { return 0 ;
+=======
+           { return 0;
+>>>>>>> a8e67e4c1be6f7b2da260ffa3d3c6ad42fb7929e
            }
            else 
            {
