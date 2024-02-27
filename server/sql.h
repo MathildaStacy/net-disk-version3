@@ -48,7 +48,7 @@ int find_pre_code(MYSQL *conn,char*path,int pcode);
 int find_later_code(MYSQL *conn,int cur_code,char *filename,char *name);
 int find_later_file(MYSQL *conn,int cur_code,char *filename,char *name);
 //int cd_func(MYSQL *conn,Train_t *ptrain,QUR_msg *pqq_msg,char *name,int *pcode);
-int deleteFile(int uid,int fileid);
+int deleteFile(MYSQL *conn, int uid,int fileid);
 //int find_file_info(MYSQL *conn,File_info*,char*name,int code);
 //int math_uoload(MYSQL *conn,File_info *pfile_info,char*name,int code);
 //void add_file(int code,char *name,File_info *pf);

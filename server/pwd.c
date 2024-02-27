@@ -1,6 +1,10 @@
 #include "pwd.h"
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
+
+
+
 
 int pwd(MYSQL *conn, dirStackType *dirStk, char *str) {
     if (isEmpty(dirStk)) {
@@ -14,20 +18,29 @@ int pwd(MYSQL *conn, dirStackType *dirStk, char *str) {
     int tempIds[128]; // 假设栈的深度不会超过128
     int top = 0;
     
+   
     // 临时保存原始栈信息
     while (!isEmpty(dirStk)) {
         stkPop(dirStk, &tempIds[top++]);
     }
-
+   
     // 重建原始栈的同时构建路径
     strcpy(str, ""); // 清空字符串
     strcat(str, "/");
     strcat(str, dirStk->userName);
 
+    for(int i = top - 1; i >= 0; i--)
+    {
+        printf("check loop %d, file id = %d\n", tempIds[i]);
+    }
     for (int i = top - 1; i >= 0; i--) {
+        
         File file;
+        bzero(&file, sizeof(File));
+        printf("loop %d, file id = %d\n", i, tempIds[i]);
         int ret = getFileDataById(conn, tempIds[i], &file);
-        if(ret != -1) {
+        printf("loop %d, after\n", i);
+        if(ret != -2 && ret != -1) {
             strcat(str, "/");
             strcat(str, file.filename);
             stkPush(dirStk, tempIds[i]); // 还原栈结构
