@@ -3,6 +3,7 @@
 #include "user_dir_stack.h"
 #include "cd.h"
 #include "pwd.h"
+#include "puts.h"
 //服务端执行网盘业务
 int exePanServer(int netfd, MYSQL* conn, char* usrname){
     
@@ -39,6 +40,7 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
             }
         case PUTS:
             {
+                commandPuts_S(conn, dirstack, netfd);
                 break;
             }
         case GETS:
