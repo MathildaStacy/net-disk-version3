@@ -28,10 +28,10 @@ int rm(const char *Path,char *username){
       }
      int ret =  mysql_query(con,com);
      if(ret == 0 )
-     {
+     {mysql_free_result(res);
          printf("rm sccess\n");
          return 0;
-     }
+     }mysql_free_result(res);
 return -1;
 
      
@@ -70,7 +70,6 @@ snprintf(com,sizeof(com),"INSERT INTO files1  (filename, user, preId, path, type
                return -1;
            }
             mysql_free_result(res);
-    mysql_close(con);
 
     return 0;
 
