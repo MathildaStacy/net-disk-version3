@@ -13,15 +13,15 @@ int userRegister(char *username, int netfd) {
 
     while (1) {
         printf("Do you wang to register?\n");
-        printf("(y/n):");
+        printf("(Please enter y or n):");
         fflush(stdout);
         bzero(buf, sizeof(buf));
         read(STDIN_FILENO, buf, sizeof(buf));
 
-        if (buf[0] == 'y' && buf[1] == '\n') { //开始注册
+        if (buf[0] == 'y' && buf[1] == '\n') {
 
             while (1) {
-                printf("-----------Register-----------\n");
+                printf("----------UserRegister----------\n");
                 printf("Username:");
                 fflush(stdout);
                 bzero(buf, sizeof(buf));
@@ -33,7 +33,6 @@ int userRegister(char *username, int netfd) {
                 bzero(&fileData, sizeof(fileData));
                 strcpy(fileData.dataBuf, "signY");
                 SEND_FILEDATA;
-                
 
                 // 发送用户名
                 bzero(&fileData, sizeof(fileData));
@@ -43,7 +42,7 @@ int userRegister(char *username, int netfd) {
                 // 得到用户名是否存在的情况
                 GET_FILEDATA;
                 if (strcmp(fileData.dataBuf, "error") == 0) {
-                    printf("signIn ERROR: username exist!\n");
+                    printf("signIn error: username exist!\n");
                     continue;
                 }
 
@@ -79,8 +78,10 @@ int userRegister(char *username, int netfd) {
     }
     return 0;
 }
+
 //登陆
 int userLogin(char *username, int netfd) {
+    fflush(stdout);
     File_Data_t fileData;
     bzero(&fileData, sizeof(fileData));
     char sendBuf[1004] = {0};
@@ -90,7 +91,7 @@ int userLogin(char *username, int netfd) {
 
     while (1) {
         // 输入用户名
-        printf("-----------NetDisk-----------\n");
+        printf("-----------UserLogin-----------\n");
         printf("Username:");
         fflush(stdout);
         bzero(buf, sizeof(buf));
@@ -104,10 +105,10 @@ int userLogin(char *username, int netfd) {
         SEND_FILEDATA;
 
         // 得到用户名是否存在的情况
+        fflush(stdout);
         GET_FILEDATA;
-        printf("fileData.dataBuf = %s\n", fileData.dataBuf);
         if (strcmp(fileData.dataBuf, "error") == 0) {
-            printf("signIn ERROR:username don't exist!\n");
+            printf("signIn error:username don't exist!\n");
             continue;
         }
 
@@ -128,17 +129,14 @@ int userLogin(char *username, int netfd) {
             GET_FILEDATA;
             strncpy(salt, fileData.dataBuf, 20);
             salt[20]= '\0';
-            // printf("salt = %s\n", salt);
 
             char shadow[255] = {0};
             shadow[0] = '\0';
             strcpy(shadow, crypt(password, salt));
-            // printf("shadow = %s\n", shadow);
             // 得到shadow
             char shadow_server[255];
             GET_FILEDATA;
             strncpy(shadow_server, fileData.dataBuf, 255);
-            // printf("shadow = %s\n", shadow_server);
 
             if (strcmp(shadow, shadow_server) == 0) {
                 bzero(&fileData, sizeof(fileData));
@@ -177,14 +175,13 @@ int userLogin(char *username, int netfd) {
 //        return -1;
 //    }
 //    
-//    printf("--------NetDisk--------\n");
+//    printf("------------NetDisk------------\n");
 //    char username[40] = {0};
 //    userRegister(username, sockfd);
 //    userLogin(username, sockfd);
 //
-//    printf("Login successfully, username = %s\n",username);
+//    printf("Login success, username = %s\n",username);
 //    
-//
 //    close(sockfd);
 //    return 0;
 //}

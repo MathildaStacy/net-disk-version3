@@ -27,9 +27,9 @@ void generateSalt(char *salt){
     }
 }
 //注册处理
-int SignIn_Deal(int netfd,MYSQL *conn) {
+int SignIn_Deal(int netfd, MYSQL *conn) {
     File_Data_t fileData;
-    memset(&fileData, 0, sizeof(fileData));
+    bzero(&fileData, sizeof(fileData));
     char sendBuf[1004] = {0};
     char username[40] = {0};
     char password[40] = {0};
@@ -38,6 +38,7 @@ int SignIn_Deal(int netfd,MYSQL *conn) {
     while (1) {
         GET_FILEDATA;
         if (strcmp(fileData.dataBuf, "signN") == 0) {
+            printf("signin over\n");
             return 0;
         }
 
@@ -51,29 +52,27 @@ int SignIn_Deal(int netfd,MYSQL *conn) {
         MYSQL_ROW row;
         char query[2000] = {0};
         sprintf(query, "select * from users where username = '%s';", username);
-        printf("%s\n", query);
 
         if (mysql_query(conn, query)) {
-            printf("signIn ERROR:%s\n", mysql_error(conn));
-            //mysql_close(conn);
+            printf("signIn error:%s\n", mysql_error(conn));
             SEND_ERROR;
+            mysql_free_result(res);
             continue;
         } else {
             res = mysql_use_result(conn);
             row = mysql_fetch_row(res);
             if (row) {
-                printf("signIn ERROR:username exist!\n");
+                printf("signIn error:username exist!\n");
                 SEND_ERROR;
-                //mysql_close(conn);
+                mysql_free_result(res);
                 continue;
             } else {
-                printf("signIn SUCCESS:username don't exist!\n");
+                printf("signIn success:username don't exist!\n");
                 SEND_SUCCESS;
+                mysql_free_result(res);
             }
         }
-        //mysql_close(conn);
-        // 得到一个salt
-        // char salt[21] = {0};
+
         char salt[21] = {0};
         generateSalt(salt);
         
@@ -81,32 +80,25 @@ int SignIn_Deal(int netfd,MYSQL *conn) {
         GET_FILEDATA;
         strcpy(password, fileData.dataBuf);
 
-        // char *shadow;
-        // shadow = (char*) calloc(100, sizeof(char));
-        // shadow = crypt(password, salt);
         char shadow[255] = {0};
-        // shadow[0] = '\0';
-        strcpy(shadow, crypt(password, salt));
-        // printf("shadow = %s\n", shadow);
-        // printf("signIn shadow:%s\n", shadow);
+        strcpy(shadow, crypt(password, salt));      
 
         // 插入数据库
         bzero(query, sizeof(query));
         sprintf(query, "insert into users (username, salt, encrypted_password, tomb) values ('%s', '%s', '%s', %d);", username, salt, shadow, 0);
 
         if (mysql_query(conn, query)) {
-            printf("signIn ERROR:%s\n", mysql_error(conn));
+            printf("signIn error:%s\n", mysql_error(conn));
             SEND_ERROR;
-            //mysql_close(conn);
             continue;
         } else {
             printf("signIn success\n");
             SEND_SUCCESS;
-            //mysql_close(conn);
+            
         }
         break;
     }
-    return 0;
+    return 1;
 }
 
 //登陆处理
@@ -127,45 +119,57 @@ int LogIn_Deal(int netfd, char *username, MYSQL *conn) {
         MYSQL_ROW row;
         char query[2000] = {0};
         bzero(query, sizeof(query));
+        
         sprintf(query, "select * from users where username = '%s';", username);
-        printf("%s\n", query);
-
         if (mysql_query(conn, query)) {
-            printf("LogIn ERROR:%s\n", mysql_error(conn));
-            //mysql_close(conn);
+            printf("LogIn error:%s\n", mysql_error(conn));
             SEND_ERROR;
+            mysql_free_result(res);
             continue;
         } else {
             res = mysql_use_result(conn);
             row = mysql_fetch_row(res);
             if (row) {
-                printf("LogIn SUCCESS:username exist!\n");
-                printf("fileData.dataBuf = %s\n", fileData.dataBuf);
+                
+                printf("LogIn success:username exist!\n");
+
                 SEND_SUCCESS;
-                printf("fileData.dataBuf = %s\n", fileData.dataBuf);
-                // 传回salt
+                //传回salt
                 bzero(&fileData, sizeof(fileData));
                 strcpy(fileData.dataBuf, row[2]);
                 SEND_FILEDATA;
 
-                // 传回shadow
+                //传回shadow
                 bzero(&fileData, sizeof(fileData));
                 strcpy(fileData.dataBuf, row[3]);
                 SEND_FILEDATA;
+                mysql_free_result(res);
             } else {
+                printf("a\n");
                 SEND_ERROR;
-                //mysql_close(conn);
+                mysql_free_result(res);
                 continue;
             }
         }
-        //mysql_close(conn);
 
         GET_FILEDATA;
         if (strcmp(fileData.dataBuf, "error") == 0) {
-            printf("LogIn ERROR: Password error!\n");
+            printf("LogIn error: Password error!\n");
             continue;
         }
         break;
+    }
+    return 0;
+}
+
+int NetDiskInterface(int netfd, MYSQL *conn, char *username){
+    int ret = SignIn_Deal(netfd, conn);
+    while(ret == 1){
+        ret = SignIn_Deal(netfd, conn);
+    }
+    ret = LogIn_Deal(netfd, username, conn);
+    if(ret == -1){
+        close(netfd);
     }
     return 0;
 }
@@ -210,20 +214,13 @@ int LogIn_Deal(int netfd, char *username, MYSQL *conn) {
 //        int netfd = accept(sockfd, NULL, NULL);
 //
 //        char username[40] = {0};
-//        ret = SignIn_Deal(netfd, conn);
-//        if(ret == -1){
-//            close(netfd);
-//            continue;
-//        }
-//        ret = LogIn_Deal(netfd, username, conn);
-//        if(ret == -1){
-//            close(netfd);
-//        }
+//        NetDiskInterface(netfd, conn, username);
 //        //登陆成功
-//        printf("hello world! username = %s\n", username);
+//        printf("Login success, username = %s\n", username);
 //        close(netfd);
 //    }
 //    mysql_close(conn);
 //    close(sockfd);
 //    return 0;
 //}
+

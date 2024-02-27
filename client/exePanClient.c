@@ -149,10 +149,8 @@ int changeCmdline(char* bufPrintf, order_t* porder){
     if(memcmp(porder->parameters[0],"..",2)==0&&strlen(porder->parameters[0])==2){
         //cd ..
         int lastIndex = strlen(bufPrintf)-1;
-        printf("%d\n",lastIndex);
         int i;
         for(i = lastIndex; i > 0; --i){
-            printf("%d\n",i);
             if(bufPrintf[i] == '/'){
                 memset(bufPrintf+i,0,strlen(bufPrintf)-i);
                 break;

@@ -64,10 +64,9 @@ void * threadFunc(void *arg){
         //登陆操作
         char username[40] = "user1";
         //注册
-        //SignIn_Deal(netfd,conn);
         //登陆
-        //LogIn_Deal(netfd, username, conn);
-        //
+        //NetDiskInterface(netfd, conn, username); 
+       
         printf("登陆成功，username = %s\n",username);
 
 
