@@ -37,6 +37,7 @@ int getFileDataById(MYSQL *conn, int fileId, File *file_s);//获取文件详细�
 char* getFilename(MYSQL *conn, int fileId);
 int findFilesByPreId(MYSQL *conn, int preId, int *fileIds);     //更新
 int dbFindFileBySha1(MYSQL *conn, const char* sha1, File* file); //更新
+int deleteFileByFilenameAndPreId(MYSQL *conn,const char *filename, int preId)
 //int dbFindFileByDirId(int directoryId, File *file);
 
 void get_salt(char *str);

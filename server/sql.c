@@ -103,7 +103,7 @@ void addFile(MYSQL *conn, File file_s) {
        printf("File inserted successfully\n");
           
     // 关闭数据库连接
-        .
+        
   }  
 
 char* getFilename(MYSQL *conn, int fileId) {
@@ -316,51 +316,24 @@ int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
     return 0;
 }    
 
+int deleteFileByFilenameAndPreId(MYSQL *conn,const char *filename, int preId) {
+    
+    // 构造 SQL 更新语句
+    char query[1000];
+    snprintf(query, sizeof(query), "UPDATE files SET tomb = 1 WHERE filename = '%s' AND preId = %d", filename, preId);
 
-int deleteFile(MYSQL *conn, int uid, int fileid)
-{
-    
-    MYSQL_RES *res;
-    MYSQL_ROW row;
-    char query[300]="select * from files where filename=";
-    sprintf(query,"%s%d and belongUserId= '%d'",query,fileid, uid);
-    //   puts(query);
-    int t;
-    t=mysql_query(conn,query);
-    if(t)
-    {
-        printf("Error making query:%s\n",mysql_error(conn));
-    }else
-    {
-        //      printf("Query made...\n");
-        res=mysql_use_result(conn);
-        if(res)
-        {
-            if((row=mysql_fetch_row(res))!=NULL)
-            {
-                //              printf("first filename = %s\n",row[0]);
-                mysql_free_result(res);
-                return -1;
-            }
-        }else{
-            printf("查询出错\n");
-            exit(0);
-        }
-        mysql_free_result(res);
+    // 执行更新操作
+    if (mysql_query(conn, query)) {
+        fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+        mysql_close(conn);
+        return -1;
     }
-    strcpy(query,"delete from files where fileid=");
-    sprintf(query,"%s%d",query,fileid);
-    //   puts(query);
-    t=mysql_query(conn,query);
-    if(t)
-    {
-        printf("Error making query:%s\n",mysql_error(conn));
-    }else{
-        printf("delete success,delete row=%ld\n",(long)mysql_affected_rows(conn));
-    }
-    
-    return 0;
+
+    printf("Tomb value updated successfully\n");
+    return 0;//成功返回0
+
 }
+
 
 void loginLog(const char *action,const char *name,const char *ip,const char *result)
 {
