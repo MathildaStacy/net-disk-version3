@@ -1,6 +1,8 @@
 #include "puts.h"
 #include "func.h"
 #include "train.h"
+#include "pwd.h"
+#include "sql.h"
 //#include "logger.h"
 #include <openssl/sha.h>
 #include <sys/file.h>
@@ -98,6 +100,7 @@
     ERROR_CHECK(rret, -1 ,"sendfile");
     close(opfd);
     printf("puts over\n");
+    return 0;
 }
 
 //写入打开的文件描述符,使用打开的文件描述符可以不用在函数内部打开文件文件描述符
@@ -145,7 +148,7 @@
     printf("get over\n");
     return 0;
 }
-int commandPuts_S(int sockfd)
+int commandPuts_S(dirStackType * virtual_path,int sockfd)
 {
     //接收哈希
     char hashbuf[41];
@@ -155,11 +158,35 @@ int commandPuts_S(int sockfd)
     int isExist = 0;
     off_t offset =0;
     char offsetbuf[1024];
+    //用于得到父目录
+    char virtual_filepath[1024]; 
+    int pwdret = pwd(virtual_path,virtual_filepath);
+    if(pwdret==-1)
+    {
+        printf("pwd wrong!\n");
+        return  -1;
+    }
+    File isExist_file;
+    //使用dbret判断是否存在，-1不存在，0存在，-2异常
+    int dbret = dbFindFileBySha1(hashbuf,&isExist_file);
+    if(dbret == 0)
+    {
+        isExist=1;
+    }
+    else if (dbret == -1)
+    {
+        isExist == 0;
+    }
+    else if(dbret == -2)
+    {
+        printf("dbFindFileBySha1 erro\n");
+        return -1;
+    }
+
     //如果不存在
     if(isExist == 0)
     {
         //注册表内没有说明可能没有或是未传输完
-       char file_rootpath; //用于后期拼接
        int opfd =open(hashbuf,O_RDWR);
        if (flock(opfd, LOCK_EX) < 0) 
        { // 对文件加排它锁
@@ -214,12 +241,18 @@ int commandPuts_S(int sockfd)
            char checkbuf[]="1";
            msgtrans(checkbuf,sockfd);
            printf("get ok\n");
+           //写入文件目录表
        }
        else
        {
            char checkbuf[]="0";
            msgtrans(checkbuf,sockfd);
            printf("get erro\n");
+           if (unlink(hashbuf) != 0) {
+               perror("Failed to delete file");
+               exit(EXIT_FAILURE);
+           } 
+
        }
        if (flock(opfd, LOCK_UN) < 0) 
        { // 解锁文件
@@ -227,6 +260,7 @@ int commandPuts_S(int sockfd)
            exit(EXIT_FAILURE);
        } 
        close(opfd);
+
     }
     return 0;
 }

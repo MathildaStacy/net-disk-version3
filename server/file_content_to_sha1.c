@@ -1,4 +1,6 @@
 #include "file_content_to_sha1.h"
+#include <fcntl.h>
+#include <stdio.h>
 
 // 将字节数据转化为十六进制字符串
 void bytes_to_hex_string(const unsigned char *in, size_t len, char *out, size_t out_len) {
@@ -47,3 +49,17 @@ int file_content_to_sha1(int file_fd, char *sha1, size_t n) {
 
     return 0; // 成功返回
 }
+/*
+int main()
+{
+
+    int fd = open("user_dir_stack.c", O_RDONLY);
+
+    char str[41];
+
+    file_content_to_sha1(fd, str, 41);
+
+    printf("sha1: %s\n", str);
+    return 0;
+}
+*/ 
