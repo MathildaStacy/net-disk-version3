@@ -66,7 +66,7 @@ snprintf(com,sizeof(com),"INSERT INTO files1  (filename, user, preId, path, type
            { printf("mkdir sccess\n");
            }
            else 
-           {
+           {mysql_free_result(res);
                return -1;
            }
             mysql_free_result(res);
