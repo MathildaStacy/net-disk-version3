@@ -15,7 +15,7 @@ typedef struct stackS {
 
 typedef struct dirStackS {
     stackType *stk;
-    char *userName;
+    char userName[30];
 } dirStackType;
 
 // 初始化栈

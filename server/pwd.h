@@ -5,7 +5,7 @@
 #include "sql.h"
 
 
-int pwd(dirStackType *dirStk, char *str);
+int pwd(MYSQL *conn, dirStackType *dirStk, char *str);
 
 
 #endif

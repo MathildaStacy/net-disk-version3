@@ -12,8 +12,8 @@ int sqlConnect(MYSQL **conn)
 {
     char server[]="localhost";
     char user[]="root";
-    char password[]="123456";
-    char database[]="user";//要访问的数据库名称
+    char password[]="fbr6530@";
+    char database[]="netdisk";//要访问的数据库名称
     *conn=mysql_init(NULL);
     if(!mysql_real_connect(*conn,server,user,password,database,0,NULL,0))
     {
@@ -25,10 +25,9 @@ int sqlConnect(MYSQL **conn)
     return 0;
 }
 
-void addUser(char *name,char *salt,char *password)
+void addUser(MYSQL *conn, char *name,char *salt,char *password)
 {
-    MYSQL *conn;//连接数据库
-    sqlConnect(&conn);
+    
     char query[200]="insert into users (username,salt,encrypted_password)values(";
     sprintf(query,"%s'%s','%s','%s')",query,name,salt,password);
     //printf("query= %s\n",query);
@@ -41,13 +40,12 @@ void addUser(char *name,char *salt,char *password)
         printf("insert success\n");
     }
 
-    mysql_close(conn);
+    
 }
 
-int findUserByName(char *name,char * salt, char *password)//待完成
+int findUserByName(MYSQL *conn, char *name,char * salt, char *password)//待完成
 {
-    MYSQL *conn;//连接数据库
-    sqlConnect(&conn);
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
     char query[300]="select salt,encrypted_password from users where username='";
@@ -80,33 +78,36 @@ int findUserByName(char *name,char * salt, char *password)//待完成
             exit(0);
         }
         mysql_free_result(res);
-        mysql_close(conn);
+        
         
         return ret;
     }
+
+    return ret;
 }
 
-void addFile(int uid, char *name,File_info *pf)
-{
-    MYSQL *conn;
-    sqlConnect(&conn);
-    char query[300]="insert into files(filename,belongUserId,filetype,md5sum,filesize) values";
-    sprintf(query,"%s('%s','%d','%s','%s',%d)",query,pf->filename,uid,
-           pf->filetype,pf->md5sum,pf->filesize);
-//    puts(query);
+void addFile(MYSQL *conn, File file_s) {
     
-    int t = mysql_query(conn,query);
-    if(t == 0){
-        printf("insert success\n");}
-    else{
-        printf("failed!\n");
-    }
-    mysql_close(conn);
-}
+        // 构造 SQL 插入语句
+       char query[1000];
+       snprintf(query, sizeof(query), "INSERT INTO files (filename, user, preId, path, type, sha1, tomb) VALUES ('%s', '%d', %d, '%s', '%s', '%s', %d)",
+                 file_s.filename, file_s.user, file_s.pre_id, file_s.absPath, file_s.type, file_s.sha1, file_s.tomb);
+    
+     // 执行插入操作
+       if (mysql_query(conn, query)) {
+          fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+           //mysql_close(conn);                                                                                                                                   
+          return;
+       }   
+          
+       printf("File inserted successfully\n");
+          
+    // 关闭数据库连接
+        
+  }  
 
-char* getFilename(int fileId) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+char* getFilename(MYSQL *conn, int fileId) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -118,7 +119,7 @@ char* getFilename(int fileId) {
     // 执行查询
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
+        //mysql_close(conn);
         return NULL;
     }
 
@@ -126,7 +127,7 @@ char* getFilename(int fileId) {
     result = mysql_store_result(conn);
     if (result == NULL) {
         fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
+        //mysql_close(conn);
         return NULL;
     }
 
@@ -134,7 +135,7 @@ char* getFilename(int fileId) {
     if (mysql_num_rows(result) == 0) {
         fprintf(stderr, "No rows found for fileId %d\n", fileId);
         mysql_free_result(result);
-        mysql_close(conn);
+        //mysql_close(conn);
         return NULL;
     }
 
@@ -143,7 +144,7 @@ char* getFilename(int fileId) {
     if (row == NULL) {
         fprintf(stderr, "mysql_fetch_row() failed\n");
         mysql_free_result(result);
-        mysql_close(conn);
+        //mysql_close(conn);
         return NULL;
     }
 
@@ -152,14 +153,13 @@ char* getFilename(int fileId) {
 
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
-    mysql_close(conn);
+    
     // 返回文件名
     return filename;
 }
 
-int findFilesByPreId( int preId, int fileIds[100]) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -201,50 +201,53 @@ int findFilesByPreId( int preId, int fileIds[100]) {
     }
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
-    mysql_close(conn);
+    
 
     return numFiles;
 }
 
-int getFileDataById(int fileId, File *file_s) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
 
     char query[1000];
     snprintf(query, sizeof(query), "SELECT filename, user, preId, path, type, sha1 FROM files WHERE fileId = %d", fileId);
-
+    printf("sql.c: 212 ok\n");
     printf("%s\n",query);
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
+        //mysql_close(conn);
         return -1;
     }
 
+    printf("sql.c: 220 ok\n");
     result = mysql_store_result(conn);
     if (result == NULL) {
         fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
+        //mysql_close(conn);
         return -1;
     }
 
+    printf("sql.c: 228 ok\n");
     if (mysql_num_rows(result) == 0) {
         fprintf(stderr, "No rows found for fileId %d\n", fileId);
         mysql_free_result(result);
-        mysql_close(conn);
+        //mysql_close(conn);
         return -1;
     }
 
+    printf("sql.c: 236 ok\n");
     row = mysql_fetch_row(result);
     if (row == NULL) {
         fprintf(stderr, "mysql_fetch_row() failed\n");
         mysql_free_result(result);
-        mysql_close(conn);
+        //mysql_close(conn);
         return -1;
     }
     
+    printf("sql.c: 245 ok\n");
     strcpy(file_s->filename, row[0]);
     file_s->user = atoi(row[1]);
     file_s->pre_id = atoi(row[2]);
@@ -255,14 +258,13 @@ int getFileDataById(int fileId, File *file_s) {
     printf("filename:%s\n",file_s->filename);
 
     mysql_free_result(result);
-    mysql_close(conn);
+   
 
     return 0;
 }    
 
-void dbFindFileBySha1(const char *sha1, File *file_s) {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
+    
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -274,30 +276,30 @@ void dbFindFileBySha1(const char *sha1, File *file_s) {
 
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        return;
+        //mysql_close(conn);
+        return -2;
     }
 
     result = mysql_store_result(conn);
     if (result == NULL) {
         fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        return;
+        //mysql_close(conn);
+        return -2;
     }
 
     if (mysql_num_rows(result) == 0) {
         fprintf(stderr, "No rows found for fileId %s\n", sha1);
         mysql_free_result(result);
-        mysql_close(conn);
-        return;
+        //mysql_close(conn);
+        return -1; //如果没有找到就返回-1
     }
 
     row = mysql_fetch_row(result);
     if (row == NULL) {
         fprintf(stderr, "mysql_fetch_row() failed\n");
         mysql_free_result(result);
-        mysql_close(conn);
-        return;
+        //mysql_close(conn);
+        return -2;
     }
     
     file_s->fileId = atoi(row[0]);
@@ -309,14 +311,15 @@ void dbFindFileBySha1(const char *sha1, File *file_s) {
     file_s->tomb = atoi(row[6]);
 
     mysql_free_result(result);
-    mysql_close(conn);
+    
+
+    return 0;
 }    
 
 
-int deleteFile(int uid, int fileid)
+int deleteFile(MYSQL *conn, int uid, int fileid)
 {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
+    
 
     MYSQL_RES *res;
     MYSQL_ROW row;
@@ -356,7 +359,7 @@ int deleteFile(int uid, int fileid)
     }else{
         printf("delete success,delete row=%ld\n",(long)mysql_affected_rows(conn));
     }
-    mysql_close(conn);
+    
     return 0;
 }
 

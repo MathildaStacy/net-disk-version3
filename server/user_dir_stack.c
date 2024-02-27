@@ -4,12 +4,17 @@
 #include <stdio.h>
 
 int dirStackInit(dirStackType **dirStk) {
-    *dirStk = (dirStackType *)malloc(sizeof(dirStackType));
-    if (*dirStk == NULL) return -1;
-    (*dirStk)->stk = (stackType *)malloc(sizeof(stackType));
-    if ((*dirStk)->stk == NULL) return -1;
-    (*dirStk)->stk->head = NULL;
-    (*dirStk)->stk->stkSize = 0;
+    *dirStk = (dirStackType *)calloc(1, sizeof(dirStackType));
+    if (*dirStk == NULL) {
+        return 1;
+    }
+
+    (*dirStk)->stk = (stackType *)calloc(1, sizeof(stackType));
+    if ((*dirStk)->stk == NULL) {
+        free(*dirStk);  // 释放已分配的dirStackType指针
+        return 1;
+    }
+
     return 0;
 }
 
@@ -17,36 +22,70 @@ int isEmpty(dirStackType *dirStk) {
     return dirStk->stk->stkSize == 0;
 }
 
-int stkPush(dirStackType *dirStk, const int ele) {
-    stackNodeT *newNode = (stackNodeT *)malloc(sizeof(stackNodeT));
-    if (newNode == NULL) return -1;
-    newNode->fileId = ele;
-    newNode->next = dirStk->stk->head;
-    dirStk->stk->head = newNode;
+//不成功返回1，成功返回0，本函数会动态内存分配克隆一个ele字符串的副本
+int stkPush(dirStackType *dirStk, int ele) {
+    stackNodeT *new_node = (stackNodeT *)calloc(1, sizeof(stackNodeT));
+    if(new_node == NULL) {
+        return 1;
+    }
+
+    new_node->fileId = ele; // 使用strdup克隆一个字符串副本
+   
+
+    if(dirStk->stk->stkSize == 0) {
+        dirStk->stk->head = new_node;
+        dirStk->stk->tail = new_node;
+    } else {
+        new_node->next = dirStk->stk->head;
+        dirStk->stk->head = new_node;
+    }
     dirStk->stk->stkSize++;
+
     return 0;
 }
 
 int stkPop(dirStackType *dirStk, int* ele) {
-    if (isEmpty(dirStk)) return -1;
-    stackNodeT *temp = dirStk->stk->head;
-    *ele = temp->fileId;
+    if(isEmpty(dirStk)) {
+        return 1;
+    }
+
+    stackNodeT *node_to_pop = dirStk->stk->head;
     dirStk->stk->head = dirStk->stk->head->next;
-    free(temp);
     dirStk->stk->stkSize--;
-    return 0;
+
+    if(dirStk->stk->stkSize == 0) {
+        dirStk->stk->tail = NULL;
+    }
+
+    *ele = node_to_pop->fileId; // Assign the string to the output parameter
+    free(node_to_pop);
+
+    return 0; 
 }
 
 int getHead(dirStackType *dirStk, int* ele) {
-    if (isEmpty(dirStk)) return -1;
+    if (isEmpty(dirStk)) {
+        return 1;
+    }
     *ele = dirStk->stk->head->fileId;
     return 0;
 }
 
+int getTail(dirStackType *dirStk, int * ele) {
+    if (isEmpty(dirStk)) {
+        return 1;
+    }
+    *ele = dirStk->stk->tail->fileId;
+    return 0;
+}
+
 void freeStack(dirStackType *dirStk) {
-    while (!isEmpty(dirStk)) {
-        int ele;
-        stkPop(dirStk, &ele);
+    stackNodeT* current = dirStk->stk->head;
+    while(current != NULL) {
+        stackNodeT* next = current->next;
+        
+        free(current);
+        current = next;
     }
     free(dirStk->stk);
     free(dirStk);
@@ -82,4 +121,5 @@ int main() {
 
     return 0;
 }
+
 */

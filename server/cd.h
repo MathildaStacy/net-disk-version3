@@ -5,6 +5,6 @@
 #include "sql.h"
 
 
-int cd(dirStackType *dirStk, char *str);
+int cd(MYSQL *conn, dirStackType *dirStk, char *str);
 
 #endif
