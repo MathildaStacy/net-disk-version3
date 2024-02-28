@@ -472,3 +472,33 @@ int getPreIdByFilename(MYSQL *conn,const char *path, const char * filename) {
     return 0;
 }
 
+int deleteFileById(MYSQL *conn, int fileId) {
+    MYSQL_STMT *stmt;
+    char query[200];
+    int tombValue = 1;
+
+    sprintf(query, "UPDATE files SET tomb = %d WHERE fileId = %d", tombValue, fileId);
+    
+    stmt = mysql_stmt_init(conn);
+    if (!stmt) {
+        fprintf(stderr, "mysql_stmt_init(), out of memory\n");
+        return -1;
+    }
+    
+    if (mysql_stmt_prepare(stmt, query, strlen(query))) {
+        fprintf(stderr, "mysql_stmt_prepare(), INSERT failed\n");
+        fprintf(stderr, "%s\n", mysql_stmt_error(stmt));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        fprintf(stderr, "mysql_stmt_execute(), failed\n");
+        fprintf(stderr, "%s\n", mysql_stmt_error(stmt));
+        return -1;
+    }
+    
+    return 1;
+    mysql_stmt_close(stmt);
+    mysql_close(conn);
+}
+
