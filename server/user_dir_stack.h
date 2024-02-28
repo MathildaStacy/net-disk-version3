@@ -35,6 +35,6 @@ void freeStack(dirStackType *dirStk);
 
 //
 //
-int ls(int netfd, MYSQL *conn);
+int ls(int netfd, MYSQL *conn, dirStackType *dirStk);
 
 #endif

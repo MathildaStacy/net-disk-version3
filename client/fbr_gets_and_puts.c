@@ -1,6 +1,5 @@
 #include "fbr_gets_and_puts.h"
 #include "train.h"
-#include "user_dir_stack.h"
 #include "sql.h"
 //#include "logger.h"
 #include <strings.h>
@@ -311,80 +310,79 @@ int sendFile(int sockfd, const char *sha1)
 }
 
 
-int server_send(MYSQL *conn, dirStackType *dirStk, const char *file_name, int sockfd)
-{
-    int file_pre_id = 0;
-    int ret = getHead(dirStk, &file_pre_id);
-    int error_num = 0;
-
-    if(ret == 1)
-    {
-        file_pre_id = -1;
-    }
-
-    int file_ids[1024];
-    int nums = findFilesByPreId(conn, file_pre_id, file_ids);
-
-    if(nums == 0)
-    {
-        printf("file does not exist in client download!\n");
-        error_num = 1; //数据库里找不到，文件不存在！
-    }
-
-    File file_data;
-
-    for(int i = 0; i < nums; i++)
-    {
-        bzero(&file_data, sizeof(file_data));
-        getFileDataById(conn, file_ids[i], &file_data);
-        if(strcmp(file_name, file_data.filename) == 0 && strcmp(dirStk->userName, file_data.user));
-        {
-            break;
-        }
-    }
-
-    if(file_data.tomb == 1)
-    {
-        error_num = 1; //墓碑值为-1，文件不存在！
-    }
-
-    
-
-
-    //握手:用小火车向客户端发送错误信息  1
-    train_t train_error_msg;
-    train_error_msg.size = sizeof(int);
-    if (error_num == -1) {
-        int error = 1;
-        memcpy(train_error_msg.buf, &error, sizeof(int));
-        sendn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
-        sendn(sockfd, train_error_msg.buf, train_error_msg.size);
-
-        return -1;
-    }
-    else {
-        int error = 0;
-        memcpy(train_error_msg.buf, &error, sizeof(int));
-       
-    }
-    sendn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
-    sendn(sockfd, train_error_msg.buf, train_error_msg.size);
-
-    char file_sha1[41];
-    bzero(file_sha1, sizeof(file_sha1));
-    strcpy(file_sha1, file_data.sha1);
-    
-    ret = sendFile(sockfd, file_sha1);
-    
-    printf("file sha1 = %s\n", file_sha1);
-    if(ret != 0)
-    {
-        printf("send file failed!\n");
-        return -1;
-    }
-
-    return 0;
-}
+//int server_send(MYSQL *conn, dirStackType *dirStk, const char *file_name, int sockfd)
+//{
+//    int file_pre_id = 0;
+//    int ret = getHead(dirStk, &file_pre_id);
+//    int error_num = 0;
+//
+//    if(ret == 1)
+//    {
+//        file_pre_id = -1;
+//    }
+//
+//    int file_ids[1024];
+//    int nums = findFilesByPreId(conn, file_pre_id, file_ids);
+//
+//    if(nums == 0)
+//    {
+//        printf("file does not exist in client download!\n");
+//        error_num = 1; //数据库里找不到，文件不存在！
+//    }
+//
+//    File file_data;
+//
+//    for(int i = 0; i < nums; i++)
+//    {
+//        bzero(&file_data, sizeof(file_data));
+//        getFileDataById(conn, file_ids[i], &file_data);
+//        if(strcmp(file_name, file_data.filename))
+//        {
+//            break;
+//        }
+//    }
+//
+//    if(file_data.tomb == 1)
+//    {
+//        error_num = 1; //墓碑值为-1，文件不存在！
+//    }
+//
+//    
+//
+//
+//    //握手:用小火车向客户端发送错误信息  1
+//    train_t train_error_msg;
+//    train_error_msg.size = sizeof(int);
+//    if (error_num == -1) {
+//        int error = 1;
+//        memcpy(train_error_msg.buf, &error, sizeof(int));
+//        sendn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
+//        sendn(sockfd, train_error_msg.buf, train_error_msg.size);
+//
+//        return -1;
+//    }
+//    else {
+//        int error = 0;
+//        memcpy(train_error_msg.buf, &error, sizeof(int));
+//       
+//    }
+//    sendn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
+//    sendn(sockfd, train_error_msg.buf, train_error_msg.size);
+//
+//    char file_sha1[41];
+//    bzero(file_sha1, sizeof(file_sha1));
+//    strcpy(file_sha1, file_data.sha1);
+//    
+//    ret = sendFile(sockfd, file_sha1);
+//
+//    if(ret != 0)
+//    {
+//        printf("send file failed!\n");
+//        return -1;
+//    }
+//
+//    return 0;
+//}
 
 //下载：kehudaua
 //从用户目录栈里得到当前顶部的dirID 把他作为父亲id查询文件名是否存在

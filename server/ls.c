@@ -1,17 +1,20 @@
 #include "hsqdef.h"
 #include "user_dir_stack.h"
 
-int ls(int netfd, MYSQL *conn) {
+int ls(int netfd, MYSQL *conn, dirStackType *dirStk) {
     int ret;
-    int id = 1;
-    char *username = "user1";
+    int id;
+    if(!isEmpty(dirStk)){
+        id = -1;
+    }
+    getHead(dirStk, &id);
     MYSQL_RES *res;
     MYSQL_ROW row;
 
     char query[2000]={0};
     char lsBuf[1000]={0};
 
-    sprintf(query,"select * from files where preId = %d and user = '%s';", id, username);
+    sprintf(query,"select * from files where preId = %d and user = '%s';", id, dirStk->userName);
     if (mysql_query(conn, query)) {
         printf("ls error: %s\n", mysql_error(conn));
         strcpy(lsBuf, "error");

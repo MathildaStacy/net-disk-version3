@@ -192,20 +192,34 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
     //如果文件存在
     if(isExist == 1)
     {
-           msgtrans("1",sockfd);
+
+
+                    
            File writefile;
            strcpy(writefile.filename,filename);
            char user[30];
            strcpy(user,virtual_path->userName);
            strcpy(writefile.user,user); 
+
+           int preid;
+           int getheadret =  getHead(virtual_path,&preid);
+           if(getheadret == 1)
+           {
+               preid = -1;
+           }
+           writefile.pre_id=preid;
+            printf("插入文件preid = %d\n",preid);
+            
+
            char fullpath[1024];
            sprintf(fullpath,"%s/%s",virtual_filepath,filename);
            strcpy(writefile.absPath,fullpath);
-
            strcpy(writefile.type,"f");
            strcpy(writefile.sha1,hashbuf);
            writefile.tomb=0;
+           printf("插入文件：writefile.preid = %d\n",writefile.pre_id);
            addFile(conn,writefile);
+
            return 0;
     }
 
@@ -280,14 +294,23 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
            strcpy(user,virtual_path->userName);
            strcpy(writefile.user,user); 
 
-          
+           int preid;
+           int getheadret =  getHead(virtual_path,&preid);
+           if(getheadret == 1)
+           {
+               preid = -1;
+           }
+           writefile.pre_id=preid;
+            printf("插入文件preid = %d\n",preid);
+            
+
            char fullpath[1024];
            sprintf(fullpath,"%s/%s",virtual_filepath,filename);
            strcpy(writefile.absPath,fullpath);
-           
            strcpy(writefile.type,"f");
            strcpy(writefile.sha1,hashbuf);
            writefile.tomb=0;
+           printf("插入文件：writefile.preid = %d\n",writefile.pre_id);
            addFile(conn,writefile);
 
        }
