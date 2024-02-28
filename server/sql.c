@@ -497,8 +497,8 @@ int deleteFileById(MYSQL *conn, int fileId) {
         return -1;
     }
     
-    return 1;
     mysql_stmt_close(stmt);
-    mysql_close(conn);
+
+    return 1;
 }
 
