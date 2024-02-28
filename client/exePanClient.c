@@ -72,17 +72,15 @@ int exePanClient(int sockfd, char*usrname){
                 }
                 break;
             }
-        case RM:
+        case RM:case RMDIR:
             {
                 int flag = 0;
                 int retRecv = recv(sockfd, &flag, sizeof(int),0);
-                ERROR_CHECK(retRecv, -1,"recv rmdir");
+                ERROR_CHECK(retRecv, -1,"recv rm");
                 //判断是否删除成功
                 if(flag == -1){//不成功就打印信息,成功不做任何操作
                     printf("删除失败\n");
                 }
-
-
                 break;
             }
         case PWD:
@@ -98,23 +96,12 @@ int exePanClient(int sockfd, char*usrname){
             {
                 int flag = 0;
                 int retRecv = recv(sockfd, &flag, sizeof(int),0);
-                ERROR_CHECK(retRecv, -1,"recv rmdir");
+                ERROR_CHECK(retRecv, -1,"recv mkdir");
                 //判断是否删除成功
                 if(flag == -1){//不成功就打印信息,成功不做任何操作
                     printf("创建目录失败\n");
                 }
 
-                break;
-            }
-        case RMDIR:
-            {
-                int flag = 0;
-                int retRecv = recv(sockfd, &flag, sizeof(int),0);
-                ERROR_CHECK(retRecv, -1,"recv rmdir");
-                //判断是否删除成功
-                if(flag == -1){//不成功就打印信息,成功不做任何操作
-                    printf("删除目录失败\n");
-                }
                 break;
             }
 

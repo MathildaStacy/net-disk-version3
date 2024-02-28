@@ -40,7 +40,7 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
     int file_id[1024];
     int n = findFilesByPreId(conn, pid, file_id);
 
-    
+     
     printf("cd 38 : pos2\n");
     
     for(int i = 0; i < n; i++)
@@ -52,6 +52,7 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
         bzero(&file_s, sizeof(file_s));
         int ret = getFileDataById(conn, file_id[i], &file_s);
         printf("file id found %d in cd.c\n", file_id[i]);
+        printf("file_s.filename = |%s|, file_s.user =|%s|\n", file_s.filename, file_s.user);
         if(ret == -1)
         {
             printf("dir not found!\n");
@@ -61,16 +62,13 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
         {
             printf("found the dir! file\n");
             stkPush(dirStk, file_id[i]);
-            break;
+            return 0;
         }
-        else
-        {
-            return -1;
-        }
+        
     }
 
     
-    return 0;
+    return -1;
 }
 
 
