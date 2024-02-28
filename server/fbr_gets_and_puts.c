@@ -1,5 +1,9 @@
 #include "fbr_gets_and_puts.h"
 #include "train.h"
+#include "user_dir_stack.h"
+#include "sql.h"
+#include "logger.h"
+#include <strings.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdio.h>
@@ -306,4 +310,104 @@ int sendFile(int sockfd, const char *sha1)
     return 0; // 成功完成传输
 }
 
+
+int server_send(MYSQL *conn, dirStackType *dirStk, const char *file_name, int sockfd)
+{
+    int file_pre_id = 0;
+    int ret = getHead(dirStk, &file_pre_id);
+    int error_num = 0;
+
+    if(ret == 1)
+    {
+        file_pre_id = -1;
+    }
+
+    int file_ids[1024];
+    int nums = findFilesByPreId(conn, file_pre_id, file_ids);
+
+    if(nums == 0)
+    {
+        printf("file does not exist in client download!\n");
+        error_num = 1; //数据库里找不到，文件不存在！
+    }
+
+    File file_data;
+
+    for(int i = 0; i < nums; i++)
+    {
+        bzero(&file_data, sizeof(file_data));
+        getFileDataById(conn, file_ids[i], &file_data);
+        if(strcmp(file_name, file_data.filename))
+        {
+            break;
+        }
+    }
+
+    if(file_data.tomb == 1)
+    {
+        error_num = 1; //墓碑值为-1，文件不存在！
+    }
+
+    
+
+
+    //握手:用小火车向客户端发送错误信息  1
+    train_t train_error_msg;
+    train_error_msg.size = sizeof(int);
+    if (error_num == -1) {
+        int error = 1;
+        memcpy(train_error_msg.buf, &error, sizeof(int));
+        sendn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
+        sendn(sockfd, train_error_msg.buf, train_error_msg.size);
+
+        return -1;
+    }
+    else {
+        int error = 0;
+        memcpy(train_error_msg.buf, &error, sizeof(int));
+       
+    }
+    sendn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
+    sendn(sockfd, train_error_msg.buf, train_error_msg.size);
+
+    char file_sha1[41];
+    bzero(file_sha1, sizeof(file_sha1));
+    strcpy(file_sha1, file_data.sha1);
+    
+    ret = sendFile(sockfd, file_sha1);
+
+    if(ret != 0)
+    {
+        printf("send file failed!\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+//下载：kehudaua
+//从用户目录栈里得到当前顶部的dirID 把他作为父亲id查询文件名是否存在
+//得到文件的条目后，查询它的墓碑值
+//如果存在，获取它的哈希值1
+//获取哈希值1后，把哈希值1传给客户端
+//客户端在本地查文件存不存在，把偏移量传过来
+//服务端传输文件，传输完客户端再哈希一下文件，得到哈希值2，比对哈希值1和哈希值2是否一样，把结果传给服务端
+//如果不一样，客户端就把文件删了，重新下载
+
+
+int client_download(int sockfd, const char *file_name)
+{
+    train_t train_error_msg; 
+    recvn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
+    recvn(sockfd, train_error_msg.buf, train_error_msg.size);
+    int error_msg = 0;
+    memcpy(&error_msg, train_error_msg.buf, train_error_msg.size);
+    printf("2\n");
+    if(error_msg == 1)
+    {
+        return -1;
+    }
+
+    recvFile(sockfd, file_name);
+}
 
