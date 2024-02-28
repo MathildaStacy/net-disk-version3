@@ -193,21 +193,40 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
     //如果文件存在
     if(isExist == 1)
     {
+        //此时的isexist文件内有目录下的信息
 
-
+        
                     
-           File writefile;
-           strcpy(writefile.filename,filename);
-           char user[30];
-           strcpy(user,virtual_path->userName);
-           strcpy(writefile.user,user); 
-
+           //得到preid对比 
            int preid;
            int getheadret =  getHead(virtual_path,&preid);
            if(getheadret == 1)
            {
                preid = -1;
            }
+
+           //结合做判断
+           //路径相同且墓碑值为0,直接返回
+           if(preid == isExist_file.pre_id&&isExist_file.tomb==0)
+           {
+               printf("there is same file\n");
+               return 0;
+           }
+           //路径相同且墓碑值为1，将墓碑置为0
+           if(preid==isExist_file.pre_id&&isExist_file.tomb==1)
+           {
+               printf("ok ,recovered successfully\n"); 
+               //置零
+               return 0;
+           }
+
+
+
+           File writefile;
+           strcpy(writefile.filename,filename);
+           char user[30];
+           strcpy(user,virtual_path->userName);
+           strcpy(writefile.user,user); 
            writefile.pre_id=preid;
             printf("插入文件preid = %d\n",preid);
             
