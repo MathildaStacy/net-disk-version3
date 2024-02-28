@@ -30,6 +30,7 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
 
         case LS:
             {
+                ls(netfd, conn);
                 break;
             }
         case CD:
