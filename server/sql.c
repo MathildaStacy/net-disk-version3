@@ -386,13 +386,11 @@ void loginLog(const char *action,const char *name,const char *ip,const char *res
    // mysql_close(conn);
 }
 
-void operationLog(const char *uname,const char *action,const char *time,const char *result)
+void operationLog(MYSQL *conn,const char *uname,const char *action, const char *result)
 {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
 
-    char query[300]="insert into operationLog(username,action,time,result) values";
-    sprintf(query,"%s('%s','%s','%s','%s')",query,uname,action,time,result);
+    char query[300]="insert into operationLog(username,action,result) values";
+    sprintf(query,"%s('%s','%s','%s')",query,uname,action,result);
     puts(query);
     int t;
     t=mysql_query(conn,query);

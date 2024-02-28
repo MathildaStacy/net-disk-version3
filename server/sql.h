@@ -41,6 +41,7 @@ int dbFindFileBySha1(MYSQL *conn, const char* sha1, File* file); //更新
 int getFileIdByPath(MYSQL *conn,const char *path);
 int getPreIdByFilename(MYSQL *conn,const char *path, const char * filename);
 int deleteFileById(MYSQL *conn, int fileId);
+void operationLog(MYSQL *conn, const char * uname, const char *action, const char *result);
 
 void get_salt(char *str);
 int math_user(MYSQL *conn,char *name,char *password,char *token);
@@ -56,7 +57,6 @@ int deleteFile(MYSQL *conn, int uid,int fileid);
 //int math_uoload(MYSQL *conn,File_info *pfile_info,char*name,int code);
 //void add_file(int code,char *name,File_info *pf);
 void loginLog(const char *action,const char *name,const char *ip,const char *result);//登录&注册
-void operationLog(const char *action,const char *name,const char *ip,const char *result);
 //int get_mqbuf(MYSQL *conn,MQ_buf *pf);
 
 
