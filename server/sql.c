@@ -12,8 +12,8 @@ int sqlConnect(MYSQL **conn)
 {
     char server[]="localhost";
     char user[]="root";
-    char password[]="fbr6530@";
-    char database[]="netdisk";//要访问的数据库名称
+    char password[]="123456";
+    char database[]="user";//要访问的数据库名称
     *conn=mysql_init(NULL);
     if(!mysql_real_connect(*conn,server,user,password,database,0,NULL,0))
     {
@@ -386,13 +386,11 @@ void loginLog(const char *action,const char *name,const char *ip,const char *res
    // mysql_close(conn);
 }
 
-void operationLog(const char *uname,const char *action,const char *time,const char *result)
+void operationLog(MYSQL *conn,const char *uname,const char *action, const char *result)
 {
-    MYSQL *conn;//连接测试
-    sqlConnect(&conn);
 
-    char query[300]="insert into operationLog(username,action,time,result) values";
-    sprintf(query,"%s('%s','%s','%s','%s')",query,uname,action,time,result);
+    char query[300]="insert into operationLog(username,action,result) values";
+    sprintf(query,"%s('%s','%s','%s')",query,uname,action,result);
     puts(query);
     int t;
     t=mysql_query(conn,query);
@@ -404,3 +402,101 @@ void operationLog(const char *uname,const char *action,const char *time,const ch
     }
     //mysql_close(conn);
 }
+
+int getFileIdByPath(MYSQL *conn,const char *path) {
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int fileId;
+      
+    char query[512];
+    snprintf(query, sizeof(query), "SELECT fileId FROM files WHERE path='%s'", path);
+    
+    if (mysql_query(conn, query)) {
+        fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    res = mysql_store_result(conn);
+    if (res == NULL) {
+        fprintf(stderr, "mysql_store_result() failed:path is not exit %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    if ((row = mysql_fetch_row(res))) {
+        fileId = atoi(row[0]);
+    }
+    
+    mysql_free_result(res);
+    
+    return fileId;
+}
+
+int getPreIdByFilename(MYSQL *conn,const char *path, const char * filename) {
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int fileId;
+    
+    char query[512];
+    snprintf(query, sizeof(query), "SELECT preId FROM files WHERE filename='%s'", filename);
+    
+    if (mysql_query(conn, query)) {
+        fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    res = mysql_store_result(conn);
+    if (res == NULL) {
+        fprintf(stderr, "mysql_store_result() failed:path is not exit %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    if ((row = mysql_fetch_row(res))) {
+        fileId = atoi(row[0]);
+    }
+    printf("filePreId:%d\n",fileId);
+    
+    int pathId = getFileIdByPath(conn, path);
+    printf("pathId:%d\n",pathId);
+
+    if(pathId != fileId)
+    {
+        return -1;
+        printf("filename not exit in dir !\n");
+    }
+    mysql_free_result(res);
+
+    
+    printf("filename exit in dir !\n");
+    return 0;
+}
+
+int deleteFileById(MYSQL *conn, int fileId) {
+    MYSQL_STMT *stmt;
+    char query[200];
+    int tombValue = 1;
+
+    sprintf(query, "UPDATE files SET tomb = %d WHERE fileId = %d", tombValue, fileId);
+    
+    stmt = mysql_stmt_init(conn);
+    if (!stmt) {
+        fprintf(stderr, "mysql_stmt_init(), out of memory\n");
+        return -1;
+    }
+    
+    if (mysql_stmt_prepare(stmt, query, strlen(query))) {
+        fprintf(stderr, "mysql_stmt_prepare(), INSERT failed\n");
+        fprintf(stderr, "%s\n", mysql_stmt_error(stmt));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        fprintf(stderr, "mysql_stmt_execute(), failed\n");
+        fprintf(stderr, "%s\n", mysql_stmt_error(stmt));
+        return -1;
+    }
+    
+    mysql_stmt_close(stmt);
+
+    return 1;
+}
+
