@@ -5,6 +5,7 @@
 #include "pwd.h"
 #include "puts.h"
 #include "fbr_gets_and_puts.h"
+#include "rmMakeDir.h"
 //服务端执行网盘业务
 int exePanServer(int netfd, MYSQL* conn, char* usrname){
     
@@ -51,8 +52,10 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
                 break;
             }
 
-        case RM:
+        case RM:case RMDIR:
             {
+               int ret = rm(dirstack, order.parameters[0],conn);
+               send(netfd, &ret, sizeof(int),0);
                 break;
             }
         case PWD:
@@ -64,13 +67,11 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
             }
 
         case MKDIR:
-            {
+            {   
+                int ret = makeDir(dirstack, order.parameters[0],conn);
+                printf("makeDir over\n");
+                send(netfd, &ret, sizeof(int),0);
                 break;
-            }
-        case RMDIR:
-            {
-                break;
-
             }
 
         case QUIT:
