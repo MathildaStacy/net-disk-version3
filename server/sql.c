@@ -276,7 +276,7 @@ int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
     MYSQL_ROW row;
 
     char query[1000];
-    snprintf(query, sizeof(query), "SELECT fileId, filename, user, preId, path, type FROM files WHERE sha1 ='%s'", sha1);
+    snprintf(query, sizeof(query), "SELECT fileId, filename, user, preId, path, type ,tomb FROM files WHERE sha1 ='%s'", sha1);
 
     printf("%s\n",query);
 
@@ -316,6 +316,7 @@ int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
     strcpy(file_s->type, row[5]);
     file_s->tomb = atoi(row[6]);
 
+    strcpy(file_s->sha1, sha1);
     mysql_free_result(result);
     
 
@@ -474,6 +475,35 @@ int deleteFileById(MYSQL *conn, int fileId) {
     MYSQL_STMT *stmt;
     char query[200];
     int tombValue = 1;
+
+    sprintf(query, "UPDATE files SET tomb = %d WHERE fileId = %d", tombValue, fileId);
+    
+    stmt = mysql_stmt_init(conn);
+    if (!stmt) {
+        fprintf(stderr, "mysql_stmt_init(), out of memory\n");
+        return -1;
+    }
+    
+    if (mysql_stmt_prepare(stmt, query, strlen(query))) {
+        fprintf(stderr, "mysql_stmt_prepare(), INSERT failed\n");
+        fprintf(stderr, "%s\n", mysql_stmt_error(stmt));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        fprintf(stderr, "mysql_stmt_execute(), failed\n");
+        fprintf(stderr, "%s\n", mysql_stmt_error(stmt));
+        return -1;
+    }
+    
+    mysql_stmt_close(stmt);
+
+    return 1;
+}
+int recoverFileById(MYSQL *conn, int fileId) {
+    MYSQL_STMT *stmt;
+    char query[200];
+    int tombValue = 0;
 
     sprintf(query, "UPDATE files SET tomb = %d WHERE fileId = %d", tombValue, fileId);
     

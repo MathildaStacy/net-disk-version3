@@ -41,6 +41,7 @@ int dbFindFileBySha1(MYSQL *conn, const char* sha1, File* file); //更新
 int getFileIdByPath(MYSQL *conn,const char *path);
 int getPreIdByFilename(MYSQL *conn,const char *path, const char * filename);
 int deleteFileById(MYSQL *conn, int fileId);
+int recoverFileById(MYSQL *conn, int fileId);
 void operationLog(MYSQL *conn, const char * uname, const char *action, const char *result);
 
 void get_salt(char *str);

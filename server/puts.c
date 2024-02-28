@@ -176,8 +176,13 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
     File isExist_file;
     //使用dbret判断是否存在，-1不存在，0存在，-2异常
     int dbret = dbFindFileBySha1(conn,hashbuf,&isExist_file);
+    printf("preid == %d\n    tomb ==%d\n   filename =%s\n   sha1=%s \n",isExist_file.pre_id,
+                                                        isExist_file.tomb,
+                                                        isExist_file.filename,
+                                                        isExist_file.sha1);
     if(dbret == 0)
     {
+        msgtrans("1",sockfd);
         printf("file is exist\n");
         isExist=1;
     }
@@ -207,14 +212,24 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
 
            //结合做判断
            //路径相同且墓碑值为0,直接返回
-           if(preid == isExist_file.pre_id&&isExist_file.tomb==0)
+           printf("preid == %d\n    tomb ==%d\n   filename =%s\n   sha1=%s \n",isExist_file.pre_id,
+                                                        isExist_file.tomb,
+                                                        isExist_file.filename,
+                                                        isExist_file.sha1);
+           if((preid == isExist_file.pre_id)&&(isExist_file.tomb==0))
            {
                printf("there is same file\n");
                return 0;
            }
            //路径相同且墓碑值为1，将墓碑置为0
-           if(preid==isExist_file.pre_id&&isExist_file.tomb==1)
+           if((preid==isExist_file.pre_id)&&(isExist_file.tomb==1))
            {
+              int recoverret =  recoverFileById(conn,isExist_file.fileId);
+              if(recoverret==-1)
+              {
+                  printf("recover erro\n");
+                  return -1;
+              }
                printf("ok ,recovered successfully\n"); 
                //置零
             
