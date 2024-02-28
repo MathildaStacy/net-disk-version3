@@ -282,8 +282,12 @@ int commandPuts_C(char* filename,int sockfd)
 { 
     //发送哈希
     char hashbuf[41];
-    sha1file(filename,hashbuf);
+    int sha1rret =  sha1file(filename,hashbuf);
     msgtrans(hashbuf,sockfd);
+    if(sha1rret == -1)
+    {
+        return 0;
+    }
     msgtrans(filename,sockfd);
     
     //接收文件是否存在

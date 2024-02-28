@@ -157,6 +157,7 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
     if(strlen(hashbuf)<3)
     {
         printf("client need check\n");
+        return -1;
     }
     char filename[128];
     msgrecv(filename,sockfd);
