@@ -76,6 +76,7 @@ int exePanClient(int sockfd, char*usrname){
             {
                 int flag = 0;
                 int retRecv = recv(sockfd, &flag, sizeof(int),0);
+            
                 ERROR_CHECK(retRecv, -1,"recv rm");
                 //判断是否删除成功
                 if(flag == -1){//不成功就打印信息,成功不做任何操作

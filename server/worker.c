@@ -40,7 +40,7 @@ void * threadFunc(void *arg){
         pthread_mutex_lock(&pthreadPool->mutexMysql);
         MYSQL* conn = mysql_init(NULL);
         char *host = "localhost";
-        char *user = "root";
+        char *user = "1211123";
         char *password = "123456";
         char *database = "netdisk";
         MYSQL *ret = mysql_real_connect(conn,host,user,password,database,0,NULL,0);
@@ -62,10 +62,10 @@ void * threadFunc(void *arg){
         //printf("connect over mysql\n");
 
         //登陆操作
-        char username[40] = "user1";
+        char username[40] = "0";
         //注册
         //登陆
-        //NetDiskInterface(netfd, conn, username); 
+        NetDiskInterface(netfd, conn, username); 
        
         printf("登陆成功，username = %s\n",username);
 

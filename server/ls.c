@@ -14,7 +14,7 @@ int ls(int netfd, MYSQL *conn, dirStackType *dirStk) {
     char query[2000]={0};
     char lsBuf[1000]={0};
 
-    sprintf(query,"select * from files where preId = %d and user = '%s';", id, dirStk->userName);
+    sprintf(query,"select * from files where preId = %d and user = '%s' and tomb <> 1;", id, dirStk->userName);
     if (mysql_query(conn, query)) {
         printf("ls error: %s\n", mysql_error(conn));
         strcpy(lsBuf, "error");

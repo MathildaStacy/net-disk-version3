@@ -396,17 +396,22 @@ int sendFile(int sockfd, const char *sha1)
 
 int client_download(int sockfd, const char *file_name)
 {
-    train_t train_error_msg; 
+    train_t train_error_msg;
+    printf("fbt_get.c 400 here1\n");
     recvn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
+    printf("fbr_get.c 402 here2\n");
     recvn(sockfd, train_error_msg.buf, train_error_msg.size);
+    printf("fbr_get.c 404 here3\n");
     int error_msg = 0;
     memcpy(&error_msg, train_error_msg.buf, train_error_msg.size);
+    printf("fbr_get.c 407 here4\n");
     printf("2\n");
     if(error_msg == 1)
     {
         return -1;
     }
-
+    
+    printf("file name :%s\n", file_name);
     recvFile(sockfd, file_name);
 }
 

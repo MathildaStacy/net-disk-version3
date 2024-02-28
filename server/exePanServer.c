@@ -48,6 +48,7 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
             }
         case GETS:
             {
+                printf("exepan.c |||| filename = %s\n", order.parameters[0]);
                 server_send(conn,dirstack,order.parameters[0],netfd);
                 break;
             }

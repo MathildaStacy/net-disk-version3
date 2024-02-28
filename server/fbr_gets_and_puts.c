@@ -246,7 +246,7 @@ int sendFile(int sockfd, const char *sha1)
 
 
     //打开文件, 向客户端发送错误信息   2
-    int fd = open(filename, O_RDONLY);
+    int fd = open(sha1, O_RDONLY);
 
     //打开后对文件上锁
     if(flock(fd, LOCK_EX) == -1)
@@ -316,13 +316,14 @@ int server_send(MYSQL *conn, dirStackType *dirStk, const char *file_name, int so
     int file_pre_id = 0;
     int ret = getHead(dirStk, &file_pre_id);
     int error_num = 0;
-
+    
     if(ret == 1)
     {
         file_pre_id = -1;
     }
 
     int file_ids[1024];
+    printf("file_pre_id = %d\n");
     int nums = findFilesByPreId(conn, file_pre_id, file_ids);
 
     if(nums == 0)
@@ -332,16 +333,24 @@ int server_send(MYSQL *conn, dirStackType *dirStk, const char *file_name, int so
     }
 
     File file_data;
+    
+    printf("preid = %d, numd %d, file_name = |%s|\n", file_pre_id, nums, file_name);
 
     for(int i = 0; i < nums; i++)
     {
         bzero(&file_data, sizeof(file_data));
         getFileDataById(conn, file_ids[i], &file_data);
-        if(strcmp(file_name, file_data.filename) == 0 && strcmp(dirStk->userName, file_data.user));
+        
+        printf("file_name = |%s|, file_name in file = |%s|, diruser = |%s|, file user = |%s|\n", file_name, file_data.filename, dirStk->userName, file_data.user);
+        if((strcmp(file_name, file_data.filename) == 0) && (strcmp(dirStk->userName, file_data.user) == 0))
         {
+            printf("file founded! file_name = |%s|, file_name in file = |%s|, diruser = |%s|, file user = |%s|\n", file_name, file_data.filename, dirStk->userName, file_data.user);
             break;
         }
     }
+    
+    
+    printf("file_data.filename = %s\n file_sha1 = %s\n file_user.user = %s\n", file_data.filename, file_data.sha1, file_data.user);
 
     if(file_data.tomb == 1)
     {
@@ -349,12 +358,13 @@ int server_send(MYSQL *conn, dirStackType *dirStk, const char *file_name, int so
     }
 
     
-
+    printf("file_data.filename = %s\n file_sha1 = %s\n file_user.user = %s\n", file_data.filename, file_data.sha1, file_data.user);
+    printf("error_num = %d\n", error_num);
 
     //握手:用小火车向客户端发送错误信息  1
     train_t train_error_msg;
     train_error_msg.size = sizeof(int);
-    if (error_num == -1) {
+    if (error_num == 1) {
         int error = 1;
         memcpy(train_error_msg.buf, &error, sizeof(int));
         sendn(sockfd, &train_error_msg.size, sizeof(train_error_msg.size));
@@ -374,6 +384,8 @@ int server_send(MYSQL *conn, dirStackType *dirStk, const char *file_name, int so
     bzero(file_sha1, sizeof(file_sha1));
     strcpy(file_sha1, file_data.sha1);
     
+
+    printf("379 file sha1 name = %s\n", file_sha1);
     ret = sendFile(sockfd, file_sha1);
     
     printf("file sha1 = %s\n", file_sha1);

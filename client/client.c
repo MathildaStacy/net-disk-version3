@@ -16,11 +16,11 @@ int main(int argc, char *argv[])
 
     //执行登录业务
     printf("--------NetDisk--------\n");
-    char username[40] = "user1"; 
+    char username[40] = "0"; 
     //注册
-    //userRegister(username,sockfd);
+    userRegister(username,sockfd);
     //登陆
-    //userLogin(username, sockfd);
+    userLogin(username, sockfd);
     printf("Login successfully, username = %s\n",username);
 
 

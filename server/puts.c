@@ -217,6 +217,7 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
            {
                printf("ok ,recovered successfully\n"); 
                //置零
+            
                return 0;
            }
 
