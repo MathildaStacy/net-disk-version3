@@ -1,6 +1,6 @@
 #ifndef __USER_DIR_STACK_H_
 #define __USER_DIR_STACK_H_
-
+#include <mysql/mysql.h>
 
 typedef struct stackNodeS {
     int fileId;
@@ -32,5 +32,9 @@ int getHead(dirStackType *dirStk, int* ele);
 int getTail(dirStackType *dirStk, int* ele);
 // 释放栈
 void freeStack(dirStackType *dirStk);
+
+//
+//
+int ls(int netfd, MYSQL *conn, dirStackType *dirStk);
 
 #endif

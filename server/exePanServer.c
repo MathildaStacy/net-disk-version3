@@ -4,6 +4,7 @@
 #include "cd.h"
 #include "pwd.h"
 #include "puts.h"
+#include "fbr_gets_and_puts.h"
 //服务端执行网盘业务
 int exePanServer(int netfd, MYSQL* conn, char* usrname){
     
@@ -30,6 +31,7 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
 
         case LS:
             {
+                ls(netfd, conn, dirstack);
                 break;
             }
         case CD:
@@ -45,6 +47,7 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
             }
         case GETS:
             {
+                server_send(conn,dirstack,order.parameters[0],netfd);
                 break;
             }
 
