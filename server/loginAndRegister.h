@@ -2,13 +2,6 @@
 #define __LOGINANDREGISTER__
 
 #include "hsqdef.h"
-typedef struct {
-    int userid;         // 用户id
-    char* username;     // 用户名
-    char* salt;         // 盐值
-    char* password;     // 密码
-    int tomb;           // 墓碑值
-} User;
 
 typedef struct file_data
 {
@@ -48,4 +41,6 @@ typedef struct file_data
 void generateSalt(char *salt);
 int SignIn_Deal(int netfd,MYSQL *conn);
 int LogIn_Deal(int netfd, char *username, MYSQL *conn);
+int NetDiskInterface(int netfd, MYSQL *conn, char *username);
+
 #endif

@@ -13,17 +13,17 @@ int main(int argc, char *argv[])
     serverAddr.sin_addr.s_addr = inet_addr(argv[1]);
     int ret = connect(sockfd,(struct sockaddr *)&serverAddr,sizeof(serverAddr));
     ERROR_CHECK(ret,-1,"connect");
-    
+
     //执行登录业务
     printf("--------NetDisk--------\n");
     char username[40] = "user1"; 
     //注册
-   // userRegister(username,sockfd);
+    //userRegister(username,sockfd);
     //登陆
-   // userLogin(username, sockfd);
+    //userLogin(username, sockfd);
     printf("Login successfully, username = %s\n",username);
 
-    
+
     //执行网盘业务
     exePanClient(sockfd, username);
     close(sockfd);

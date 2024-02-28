@@ -154,6 +154,10 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
     //接收哈希
     char hashbuf[41];
     msgrecv(hashbuf,sockfd);
+    if(strlen(hashbuf)<3)
+    {
+        printf("client need check\n");
+    }
     char filename[128];
     msgrecv(filename,sockfd);
     //查询有无此文件,存在返回1，不在返回0

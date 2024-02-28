@@ -19,6 +19,12 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
     {
         return -1; //当前就是根目录
     }
+    else if(!isEmpty(dirStk) && (strcmp(str, "..")) == 0)
+    {
+        int dirId = 0;
+        stkPop(dirStk, &dirId);
+        return 0;
+    }
 
     int pid = 0;
     if(isEmpty(dirStk))
@@ -36,7 +42,7 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
 
     
     printf("cd 38 : pos2\n");
-
+    
     for(int i = 0; i < n; i++)
     {
         
@@ -51,11 +57,15 @@ int cd(MYSQL *conn, dirStackType *dirStk, char *str)
             printf("dir not found!\n");
             return -1; //目录不存在
         }
-        if(strcmp(str, file_s.filename) == 0)
+        if(strcmp(str, file_s.filename) == 0 && strcmp(file_s.user, dirStk->userName) == 0)
         {
             printf("found the dir! file\n");
             stkPush(dirStk, file_id[i]);
             break;
+        }
+        else
+        {
+            return -1;
         }
     }
 
