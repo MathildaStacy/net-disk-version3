@@ -38,6 +38,8 @@ char* getFilename(MYSQL *conn, int fileId);
 int findFilesByPreId(MYSQL *conn, int preId, int *fileIds);     //更新
 int dbFindFileBySha1(MYSQL *conn, const char* sha1, File* file); //更新
 //int dbFindFileByDirId(int directoryId, File *file);
+int getFileIdByPath(MYSQL *conn,const char *path);
+int getPreIdByFilename(MYSQL *conn,const char *path, const char * filename);
 
 void get_salt(char *str);
 int math_user(MYSQL *conn,char *name,char *password,char *token);

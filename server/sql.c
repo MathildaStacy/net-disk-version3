@@ -12,8 +12,8 @@ int sqlConnect(MYSQL **conn)
 {
     char server[]="localhost";
     char user[]="root";
-    char password[]="fbr6530@";
-    char database[]="netdisk";//要访问的数据库名称
+    char password[]="123456";
+    char database[]="user";//要访问的数据库名称
     *conn=mysql_init(NULL);
     if(!mysql_real_connect(*conn,server,user,password,database,0,NULL,0))
     {
@@ -404,3 +404,71 @@ void operationLog(const char *uname,const char *action,const char *time,const ch
     }
     //mysql_close(conn);
 }
+
+int getFileIdByPath(MYSQL *conn,const char *path) {
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int fileId;
+      
+    char query[512];
+    snprintf(query, sizeof(query), "SELECT fileId FROM files WHERE path='%s'", path);
+    
+    if (mysql_query(conn, query)) {
+        fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    res = mysql_store_result(conn);
+    if (res == NULL) {
+        fprintf(stderr, "mysql_store_result() failed:path is not exit %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    if ((row = mysql_fetch_row(res))) {
+        fileId = atoi(row[0]);
+    }
+    
+    mysql_free_result(res);
+    
+    return fileId;
+}
+
+int getPreIdByFilename(MYSQL *conn,const char *path, const char * filename) {
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int fileId;
+    
+    char query[512];
+    snprintf(query, sizeof(query), "SELECT preId FROM files WHERE filename='%s'", filename);
+    
+    if (mysql_query(conn, query)) {
+        fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    res = mysql_store_result(conn);
+    if (res == NULL) {
+        fprintf(stderr, "mysql_store_result() failed:path is not exit %s\n", mysql_error(conn));
+        return -1;
+    }
+    
+    if ((row = mysql_fetch_row(res))) {
+        fileId = atoi(row[0]);
+    }
+    printf("filePreId:%d\n",fileId);
+    
+    int pathId = getFileIdByPath(conn, path);
+    printf("pathId:%d\n",pathId);
+
+    if(pathId != fileId)
+    {
+        return -1;
+        printf("filename not exit in dir !\n");
+    }
+    mysql_free_result(res);
+
+    
+    printf("filename exit in dir !\n");
+    return 0;
+}
+
