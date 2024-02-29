@@ -351,11 +351,11 @@ int commandPuts_S(MYSQL * conn,dirStackType * virtual_path,int sockfd)
            char checkbuf[]="0";
            msgtrans(checkbuf,sockfd);
            printf("get erro\n");
-           if (unlink(hashbuf) != 0) {
-               perror("Failed to delete file");
-               exit(EXIT_FAILURE);
-           } 
-           return -1;
+    //       if (unlink(hashbuf) != 0) {
+     //          perror("Failed to delete file");
+     //          exit(EXIT_FAILURE);
+     //      } 
+     //      return -1;
 
        }
        close(opfd);
@@ -386,11 +386,12 @@ int commandPuts_C(char* filename,int sockfd)
     if(strcmp(checkbuf,"1")==0)
     {
         printf("hash OK!\n");
+        printf("puts over\n");
     }
     else
     {
         printf("hash erro\n");
+        printf("puts failue\n");
     }
-    printf("puts over\n");
     return 0;
 }

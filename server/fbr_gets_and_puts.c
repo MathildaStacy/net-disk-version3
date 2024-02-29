@@ -112,15 +112,18 @@ void createAndWriteIfNotExists(const char* filePath) {
             close(fd);
             return; // 写入失败
         }
-
+        if(fd != -1)
+        {
+            close(fd);
+        }
         printf("文件不存在，已创建并写入long类型的0。\n");
     } else {
         printf("文件已存在。\n");
     }
 
-    if (fd != -1) {
-        close(fd); // 关闭文件描述符
-    }
+    //if (fd != -1) {
+    //    close(fd); // 关闭文件描述符
+   //}
 }
 
 
