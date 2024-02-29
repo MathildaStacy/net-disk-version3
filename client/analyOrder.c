@@ -6,6 +6,9 @@ int analyOrder(char* order, order_t* porder){
 
     //获取命令
     char* p = strtok(order,"\n ");
+    if(p == NULL){
+        return -1;
+    }
     // printf("%s\n",p);//测试
     int ret = analyCmd(p,porder);
     // printf("%d\n",porder->cmd);

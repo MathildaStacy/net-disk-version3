@@ -8,27 +8,40 @@ int exePanClient(int sockfd, char*usrname){
     char bufPrintf[1024] = {0};//保存当前命令行提示符信息
     sprintf(bufPrintf, "%s%s",usrname,":~$ ");
     while(1){
-
+        printf("exePan 11 lines here.\n");
         //打印命令行提示信息
         displayCmdLine(bufPrintf);
         //向客户端发送指令 
+        printf("exePan 15 lines here.\n");
         char buf[1024] = {0};
         memset(buf, 0, sizeof(buf));
+        printf("exePan 18 lines here.\n");
         ssize_t retStdin = read(STDIN_FILENO, buf, sizeof(buf));
+        ERROR_CHECK(retStdin, -1, "error in read:");
+        printf("exePan line 20 buf = |%s|, retStdin = %ld\n", buf, retStdin);
+        printf("exePan 20 lines here.\n");
         order_t order;
+        printf("exePan 22 lines here.\n");
         orderInit(&order);//初始化指令结构体
+        printf("exePan 24 lines here.\n");
         int ret = analyOrder(buf, &order);
+        printf("exePan 26 lines here.\n");
         if(ret == -1){
             //指令输入错误，进入下一次循环，继续等待用户输入
             continue;
         }
-        printf("cmd = %d\n",order.cmd);//打印当前指令宏
+
+        //打印当前指令宏
+        printf("exePan 33 lines here.\n");
         for(int i = 0; i < order.num; ++i){
             //循环打印当前参数和参数大小
+            printf("exePan 36 lines here.\n");
             printf("parameter = %s len = %ld\n",order.parameters[i],strlen(order.parameters[i]));
         }
         //向服务端发送指令信号
+        printf("exePan 40 lines here.\n");
         ssize_t retSend = send(sockfd,&order,sizeof(order),0);
+        printf("exePan 42 lines here.\n");
         ERROR_CHECK(retSend, -1,"send order");
         ////////////////////////////////////////////////////////////////////////////////////////////////
         //客户端选择具体业务执行
@@ -67,6 +80,7 @@ int exePanClient(int sockfd, char*usrname){
         case GETS:
             {
                 int ret = client_download(sockfd, order.parameters[0]);
+                printf("client download exit and return to the exePan func.\n");
                 if(ret == -1){
                     printf("下载失败\n");
                 }
@@ -114,10 +128,12 @@ int exePanClient(int sockfd, char*usrname){
 
         }
         //退出逻辑
+        printf("exePan 118 line cmd == QUIT\n");
         if(order.cmd == QUIT){
             printf("byebye\n");
             break;
         }
+        printf("exePan 123 line finish if cmd.\n");
     }
     return 0;
 }

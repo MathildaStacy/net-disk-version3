@@ -43,7 +43,11 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
             }
         case PUTS:
             {
-                commandPuts_S(conn, dirstack, netfd);
+                int putsret = commandPuts_S(conn, dirstack, netfd);
+                if(putsret == -1)
+                {
+                    printf("exePanServer puts file  erro \n");
+                }
                 break;
             }
         case GETS:

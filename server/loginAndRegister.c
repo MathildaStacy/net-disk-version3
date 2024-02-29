@@ -145,7 +145,6 @@ int LogIn_Deal(int netfd, char *username, MYSQL *conn) {
                 SEND_FILEDATA;
                 mysql_free_result(res);
             } else {
-                printf("a\n");
                 SEND_ERROR;
                 mysql_free_result(res);
                 continue;
