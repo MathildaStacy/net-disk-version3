@@ -116,7 +116,7 @@
     printf("-----now full filesize = %ld\n",filesize);
     
     //得到文件大小，接收剩余大小
-    char buf [1];//改容器大小
+    char buf [4096];//改容器大小
     long cursize = offset;
     printf("-----now cur filesize = %ld\n",cursize);
     printf("-----now need trans filesize = %ld\n",filesize-cursize);
@@ -148,7 +148,6 @@
           cursize += getrecv;
           write(opfd,buf,getrecv);
         }
-        sleep(1);
     }
     printf("get over\n");
     return 0;

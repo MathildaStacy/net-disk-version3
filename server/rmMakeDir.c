@@ -25,9 +25,7 @@ int rm(dirStackType *stack,char *fileName,MYSQL *con){
          preId=atoi(row[0]);
          strcat(type,row[1]);
      }
-
       mysql_free_result(res);
-
       bzero(com,128);
          snprintf(com,sizeof(com),"UPDATE files set tomb = '1' where path='%s' and user ='%s'",fullPath,usrname);
          int ret =  mysql_query(con,com);
@@ -35,10 +33,16 @@ int rm(dirStackType *stack,char *fileName,MYSQL *con){
                bzero(com,128);
              snprintf(com,sizeof(com),"UPDATE files set tomb = '1' where preId ='%d' and  user ='%s'",preId,usrname);
             ret =  mysql_query(con,com);
-      if(ret ==0)
-          return 0 ;
+            if(ret ==0){
+            return 0 ; 
+            }else {
+                return -1;
+            }
+           }
+         else {
+             return 0;
          }
-return -1;
+        return -1;
 
 
 }
