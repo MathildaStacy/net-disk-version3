@@ -40,8 +40,8 @@ void * threadFunc(void *arg){
         pthread_mutex_lock(&pthreadPool->mutexMysql);
         MYSQL* conn = mysql_init(NULL);
         char *host = "localhost";
-        char *user = "1211123";
-        char *password = "123456";
+        char *user = "root";
+        char *password = "fbr6530@";
         char *database = "netdisk";
         MYSQL *ret = mysql_real_connect(conn,host,user,password,database,0,NULL,0);
         pthread_mutex_unlock(&pthreadPool->mutexMysql);
