@@ -50,7 +50,7 @@ int findUserByName(MYSQL *conn, char *name,char * salt, char *password)//待完�
     MYSQL_ROW row;
     char query[300]="select salt,encrypted_password from users where username='";
     sprintf(query,"%s%s%s",query, name,"'");
-    printf("%s\n",query);
+    
     int t,ret =-1;
     t=mysql_query(conn,query);
     if(t)
@@ -166,15 +166,14 @@ int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
     // 构造 SQL 查询语句
     char query[1000];
     snprintf(query, sizeof(query), "SELECT fileId FROM files WHERE preId = %d", preId);
-    printf("sql.c 169: pos1\n");
-    printf("sql.c :|%s|\n", query);
+    
     // 执行查询
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
        // mysql_close(conn);
         return 0;
     }
-    printf("sql.c 176: pos1\n");
+    
     // 获取查询结果
     result = mysql_store_result(conn);
     if (result == NULL) {
@@ -182,12 +181,12 @@ int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
        // mysql_close(conn);
         return 0;
     }
-    printf("sql.c 184: pos1\n");
+   
     // 获取结果行数
     int numRows = mysql_num_rows(result);
     int numFiles = numRows;
     
-    printf("sql.c 189: pos1\n");
+    
     // 分配内存以存储 fileIds
     if (fileIds == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -197,18 +196,18 @@ int findFilesByPreId(MYSQL *conn, int preId, int fileIds[100]) {
     }
 
 
-    printf("sql.c 199: pos1\n");
+    
     // 读取结果并将 fileId 存储在 fileIds 数组中
     int i = 0;
     while ((row = mysql_fetch_row(result)) != NULL) {
         fileIds[i++] = atoi(row[0]);
     }
 
-    printf("sql.c 206: pos1\n");
+    
     // 释放资源并关闭数据库连接
     mysql_free_result(result);
     
-    printf("sql.c 210: pos1\n");
+    
     return numFiles;
 }
 
@@ -220,15 +219,15 @@ int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
 
     char query[1000];
     snprintf(query, sizeof(query), "SELECT filename, user, preId, path, type, sha1 FROM files WHERE fileId = %d", fileId);
-    printf("sql.c: 212 ok\n");
-    printf("%s\n",query);
+    
+    
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));
         //mysql_close(conn);
         return -1;
     }
 
-    printf("sql.c: 220 ok\n");
+    
     result = mysql_store_result(conn);
     if (result == NULL) {
         fprintf(stderr, "mysql_store_result() failed: %s\n", mysql_error(conn));
@@ -236,7 +235,7 @@ int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
         return -1;
     }
 
-    printf("sql.c: 228 ok\n");
+    
     if (mysql_num_rows(result) == 0) {
         fprintf(stderr, "No rows found for fileId %d\n", fileId);
         mysql_free_result(result);
@@ -244,7 +243,7 @@ int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
         return -1;
     }
 
-    printf("sql.c: 236 ok\n");
+    
     row = mysql_fetch_row(result);
     if (row == NULL) {
         fprintf(stderr, "mysql_fetch_row() failed\n");
@@ -253,7 +252,7 @@ int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
         return -1;
     }
     
-    printf("sql.c: 245 ok\n");
+    
     strcpy(file_s->filename, row[0]);
     strcpy(file_s->user, row[1]);
     file_s->pre_id = atoi(row[2]);
@@ -261,7 +260,7 @@ int getFileDataById(MYSQL *conn, int fileId, File *file_s) {
     strcpy(file_s->type, row[4]);
     strcpy(file_s->sha1, row[5]);
     file_s->tomb = atoi(row[6]);
-    printf("filename:%s\n",file_s->filename);
+   
 
     mysql_free_result(result);
    
@@ -278,7 +277,7 @@ int dbFindFileBySha1(MYSQL *conn, const char *sha1, File *file_s) {
     char query[1000];
     snprintf(query, sizeof(query), "SELECT fileId, filename, user, preId, path, type ,tomb FROM files WHERE sha1 ='%s'", sha1);
 
-    printf("%s\n",query);
+    
 
     if (mysql_query(conn, query)) {
         fprintf(stderr, "mysql_query() failed: %s\n", mysql_error(conn));

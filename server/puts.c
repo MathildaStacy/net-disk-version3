@@ -5,6 +5,7 @@
 #include "sql.h"
 //#include "logger.h"
 #include <openssl/sha.h>
+#include <stdio.h>
 #include <sys/file.h>
 #include <mysql/mysql.h>
 #include "file_content_to_sha1.h"
@@ -108,7 +109,7 @@
  int getfile(int sockfd,int opfd ,off_t offset)
 {
     //get filesize
-    char filesizebuf[1024];
+    char filesizebuf[512];
     msgrecv(filesizebuf,sockfd);
     printf("-----now full filesize = %s\n",filesizebuf);
     long filesize ;
@@ -116,7 +117,7 @@
     printf("-----now full filesize = %ld\n",filesize);
     
     //得到文件大小，接收剩余大小
-    char buf [4096];//改容器大小
+    char buf [1024];//改容器大小
     long cursize = offset;
     printf("-----now cur filesize = %ld\n",cursize);
     printf("-----now need trans filesize = %ld\n",filesize-cursize);
@@ -125,6 +126,7 @@
     {
         int bufsize = sizeof(buf);
         int getrecv=0;
+        int count = 0;
         memset(buf,0,bufsize);
         if(filesize - cursize > bufsize )
         {
@@ -147,7 +149,10 @@
           }
           cursize += getrecv;
           write(opfd,buf,getrecv);
+          
         }
+        printf("--------------------------------count = %d \n",count);
+        count++;
     }
     printf("get over\n");
     return 0;
@@ -392,6 +397,7 @@ int commandPuts_C(char* filename,int sockfd)
     {
         printf("hash erro\n");
         printf("puts failue\n");
+        return -1;
     }
     return 0;
 }

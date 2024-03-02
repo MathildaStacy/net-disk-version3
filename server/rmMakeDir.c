@@ -1,4 +1,4 @@
-#include <func.h>
+#include "hsqdef.h"
 #include<mysql/mysql.h>
 #include"pwd.h"
 int rm(dirStackType *stack,char *fileName,MYSQL *con){

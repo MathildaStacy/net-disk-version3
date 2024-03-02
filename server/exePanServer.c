@@ -24,7 +24,7 @@ int exePanServer(int netfd, MYSQL* conn, char* usrname){
         order_t order;
         orderInit(&order);
         ssize_t retRecv = recv(netfd,&order,sizeof(order),0);
-        if(retRecv == 0){
+        if(retRecv == 0 || retRecv == -1){
             // 客户端意外断开;
             break;
         }
